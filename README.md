@@ -23,7 +23,7 @@ Chinese Folk Orchestra Hub is a full-stack dynamic web programming final project
 - JWT login for admin/member users
 - Admin dashboard overview cards
 - Admin CRUD management for members, applications, announcements, events, and resource declarations
-- Member dashboard with announcements, events, and linked profile view
+- Member dashboard with announcements, events, linked profile view, and limited profile editing
 - External resources page for academic integrity and demo data disclosure
 
 ## Folder Structure
@@ -68,6 +68,7 @@ D:\cps3500project
 From the project root:
 
 ```powershell
+cd D:\cps3500project
 npm run install:all
 ```
 
@@ -112,7 +113,7 @@ Local URLs:
 npm run build
 ```
 
-The current build passes. Vite may show a bundle-size warning because MUI and DataGrid are bundled together; this does not stop the build.
+The current build passes. Routes are lazy-loaded so dashboard-heavy dependencies are not pulled into the first page load.
 
 ## Test Login Credentials
 
@@ -146,6 +147,7 @@ Members:
 - `GET /api/members/:id`
 - `POST /api/members` admin only
 - `PUT /api/members/:id` admin only
+- `PUT /api/members/:id/profile` admin or linked member only
 - `DELETE /api/members/:id` admin only
 
 Applications:

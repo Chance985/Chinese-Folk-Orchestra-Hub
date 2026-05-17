@@ -36,7 +36,7 @@ Chinese Folk Orchestra Hub is a full-stack website for a Chinese Folk Orchestra 
 | Events page | Shows performances, rehearsals, recruitment interviews, and activities. |
 | Login system | Supports admin/member role-based access with JWT authentication. |
 | Admin dashboard | Shows overview cards and management pages for members, applications, announcements, events, and resources. |
-| Member dashboard | Shows internal announcements, events, and linked profile information. |
+| Member dashboard | Shows internal announcements, events, linked profile information, and limited personal profile editing. |
 | Resource declaration | Lists templates, libraries, AI assistance, generated assets, and demo data notes. |
 
 ## Role Distribution
@@ -81,4 +81,4 @@ Chinese Folk Orchestra Hub is a full-stack website for a Chinese Folk Orchestra 
 
 ## Academic Integrity Declaration
 
-This project uses AI coding assistance, a local Material UI template, open-source libraries, and generated placeholder assets. All demo member profiles are marked as placeholder data only and do not represent real orchestra members. The project does not claim that any public performer, celebrity, or unrelated person belongs to the orchestra. External resources and assistance are documented in the README and the Resources page of the application.
+This project uses AI coding assistance, a local Material UI template, open-source libraries, and local demo data. All external resources are declared in the README and in the website Resources page. Demo member profiles are placeholder records for testing and presentation only, not real orchestra member information. The final code was reviewed, adapted, and tested as a local full-stack web programming project.

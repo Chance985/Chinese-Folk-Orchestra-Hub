@@ -70,6 +70,45 @@ router.get('/:id', (req, res) => {
   return res.json({ item: mapMember(member) });
 });
 
+router.put('/:id/profile', requireAuth, (req, res) => {
+  const existing = getDb().prepare('SELECT * FROM members WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ message: 'Member not found.' });
+
+  const isOwnProfile =
+    req.user.role === 'member' && Number(req.user.member_id) === Number(req.params.id);
+  if (req.user.role !== 'admin' && !isOwnProfile) {
+    return res.status(403).json({ message: 'You can only edit your linked member profile.' });
+  }
+
+  const hasField = (field) => Object.prototype.hasOwnProperty.call(req.body || {}, field);
+  const payload = {
+    id: req.params.id,
+    bio: hasField('bio') ? String(req.body.bio || '').trim() : existing.bio,
+    photo_url: hasField('photo_url')
+      ? String(req.body.photo_url || '').trim()
+      : existing.photo_url || '',
+    video_url: hasField('video_url')
+      ? String(req.body.video_url || '').trim()
+      : existing.video_url || '',
+    tags: hasField('tags') ? JSON.stringify(parseTags(req.body.tags)) : existing.tags,
+  };
+
+  if (!payload.bio) return res.status(400).json({ message: 'Bio is required.' });
+
+  getDb().prepare(`
+    UPDATE members
+    SET bio = @bio,
+        photo_url = @photo_url,
+        video_url = @video_url,
+        tags = @tags,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = @id
+  `).run(payload);
+
+  const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(req.params.id);
+  return res.json({ item: mapMember(member) });
+});
+
 router.post('/', requireAuth, requireRole('admin'), (req, res) => {
   const error = validateMember(req.body || {});
   if (error) return res.status(400).json({ message: error });
