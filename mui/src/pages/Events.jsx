@@ -40,8 +40,19 @@ export default function Events() {
         <Alert severity="error">{error}</Alert>
       ) : events.length ? (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'repeat(2, 1fr)' }, gap: 2 }}>
-          {events.map((event) => (
-            <Card key={event.id}>
+          {events.map((event, index) => (
+            <Card
+              key={event.id}
+              sx={{
+                animation: `cfFadeUp 520ms cubic-bezier(0.16, 1, 0.3, 1) ${index * 70}ms both`,
+                transition:
+                  'transform 240ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 18px 48px rgba(54, 20, 16, 0.11)',
+                },
+              }}
+            >
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
                   <Chip label={event.type} color="secondary" />

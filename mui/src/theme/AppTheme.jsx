@@ -6,6 +6,7 @@ const paper = '#fff8eb';
 const cinnabar = '#9b1c20';
 const gold = '#b88324';
 const jade = '#1f6f61';
+const clay = '#7a5a47';
 
 const theme = createTheme({
   palette: {
@@ -31,13 +32,13 @@ const theme = createTheme({
     },
     text: {
       primary: ink,
-      secondary: '#6f5f56',
+      secondary: '#675b52',
     },
     divider: alpha('#6f1116', 0.16),
   },
   typography: {
     fontFamily:
-      'Inter, "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      '"Outfit", "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     h1: {
       fontWeight: 800,
       lineHeight: 1.08,
@@ -83,10 +84,47 @@ const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        '@keyframes cfFadeUp': {
+          from: {
+            opacity: 0,
+            transform: 'translate3d(0, 16px, 0)',
+          },
+          to: {
+            opacity: 1,
+            transform: 'translate3d(0, 0, 0)',
+          },
+        },
+        '@keyframes cfBreath': {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            opacity: 0.72,
+          },
+          '50%': {
+            transform: 'scale(1.16)',
+            opacity: 1,
+          },
+        },
+        '@keyframes cfShimmer': {
+          from: {
+            transform: 'translateX(-110%)',
+          },
+          to: {
+            transform: 'translateX(110%)',
+          },
+        },
+        '@keyframes cfImageDrift': {
+          from: {
+            transform: 'scale(1.055) translate3d(-0.8%, 0, 0)',
+          },
+          to: {
+            transform: 'scale(1.03) translate3d(0, 0, 0)',
+          },
+        },
         body: {
           minWidth: 320,
           background:
-            'radial-gradient(circle at 10% 0%, rgba(184, 131, 36, 0.16), transparent 32rem), linear-gradient(180deg, #fbf2e3 0%, #fff8eb 44%, #fbf2e3 100%)',
+            'linear-gradient(180deg, #fbf2e3 0%, #fff8eb 42%, #fbf2e3 100%)',
+          color: ink,
         },
         a: {
           color: 'inherit',
@@ -102,6 +140,11 @@ const theme = createTheme({
         root: {
           minHeight: 40,
           borderRadius: 8,
+          transition:
+            'transform 240ms cubic-bezier(0.16, 1, 0.3, 1), background-color 240ms cubic-bezier(0.16, 1, 0.3, 1), border-color 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+          '&:active': {
+            transform: 'translateY(1px) scale(0.99)',
+          },
         },
       },
     },
@@ -112,7 +155,7 @@ const theme = createTheme({
           border: '1px solid rgba(111, 17, 22, 0.13)',
           backgroundImage:
             'linear-gradient(180deg, rgba(255, 250, 240, 0.96), rgba(255, 248, 235, 0.9))',
-          boxShadow: '0 12px 36px rgba(54, 20, 16, 0.08)',
+          boxShadow: '0 14px 42px rgba(54, 20, 16, 0.075)',
         },
       },
     },
@@ -128,6 +171,12 @@ const theme = createTheme({
         root: {
           borderRadius: 8,
           backgroundColor: 'rgba(255, 250, 240, 0.8)',
+          transition:
+            'background-color 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1)',
+          '&.Mui-focused': {
+            backgroundColor: '#fffaf0',
+            boxShadow: '0 0 0 3px rgba(155, 28, 32, 0.08)',
+          },
         },
       },
     },
@@ -159,6 +208,7 @@ export const brandTokens = {
   cinnabar,
   gold,
   jade,
+  clay,
 };
 
 export default function AppTheme({ children }) {

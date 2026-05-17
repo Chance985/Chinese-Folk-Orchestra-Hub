@@ -15,17 +15,45 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
 import BrandMark from './BrandMark.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
 const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'About', path: '/about' },
-  { label: 'Members', path: '/members' },
-  { label: 'Events', path: '/events' },
-  { label: 'Join Us', path: '/join' },
-  { label: 'Resources', path: '/resources' },
+  { key: 'home', path: '/' },
+  { key: 'about', path: '/about' },
+  { key: 'members', path: '/members' },
+  { key: 'events', path: '/events' },
+  { key: 'join', path: '/join' },
+  { key: 'resources', path: '/resources' },
 ];
 
-function NavButton({ item, onClick }) {
+const navLabels = {
+  en: {
+    home: 'Home',
+    about: 'About',
+    members: 'Members',
+    events: 'Events',
+    join: 'Join Us',
+    resources: 'Resources',
+    dashboard: 'Dashboard',
+    login: 'Login',
+    apply: 'Apply',
+    language: '中文',
+  },
+  zh: {
+    home: '首页',
+    about: '关于',
+    members: '成员',
+    events: '活动',
+    join: '加入我们',
+    resources: '资源',
+    dashboard: '控制台',
+    login: '登录',
+    apply: '申请加入',
+    language: 'EN',
+  },
+};
+
+function NavButton({ item, label, onClick }) {
   return (
     <Button
       component={NavLink}
@@ -40,7 +68,7 @@ function NavButton({ item, onClick }) {
         },
       }}
     >
-      {item.label}
+      {label}
     </Button>
   );
 }
@@ -48,7 +76,9 @@ function NavButton({ item, onClick }) {
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const { language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
+  const labels = navLabels[language];
 
   return (
     <Box>
@@ -59,9 +89,10 @@ export default function PublicLayout() {
         sx={{
           top: 0,
           backdropFilter: 'blur(18px)',
-          bgcolor: 'rgba(251, 242, 227, 0.82)',
+          bgcolor: 'rgba(255, 248, 235, 0.86)',
           borderBottom: '1px solid',
           borderColor: 'divider',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.36)',
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
@@ -72,23 +103,26 @@ export default function PublicLayout() {
             </Box>
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, ml: 3, flexGrow: 1 }}>
               {navItems.map((item) => (
-                <NavButton key={item.path} item={item} />
+                <NavButton key={item.path} item={item} label={labels[item.key]} />
               ))}
             </Box>
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+              <Button variant="text" onClick={toggleLanguage}>
+                {labels.language}
+              </Button>
               <Button
                 startIcon={<LoginRoundedIcon />}
                 variant="outlined"
                 onClick={() => navigate(user ? '/dashboard' : '/login')}
               >
-                {user ? 'Dashboard' : 'Login'}
+                {user ? labels.dashboard : labels.login}
               </Button>
               <Button
                 startIcon={<PersonAddAlt1RoundedIcon />}
                 variant="contained"
                 onClick={() => navigate('/join')}
               >
-                Apply
+                {labels.apply}
               </Button>
             </Box>
             <IconButton
@@ -103,7 +137,7 @@ export default function PublicLayout() {
       </AppBar>
 
       <Drawer anchor="top" open={open} onClose={() => setOpen(false)}>
-        <Box sx={{ p: 2, bgcolor: 'background.default' }}>
+        <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <BrandMark />
             <IconButton aria-label="Close navigation" onClick={() => setOpen(false)}>
@@ -118,10 +152,13 @@ export default function PublicLayout() {
               to={item.path}
               onClick={() => setOpen(false)}
             >
-              {item.label}
+              {labels[item.key]}
             </MenuItem>
           ))}
           <Divider sx={{ my: 2 }} />
+          <Button fullWidth variant="text" onClick={toggleLanguage}>
+            {labels.language}
+          </Button>
           <Button
             fullWidth
             variant="contained"
@@ -130,7 +167,18 @@ export default function PublicLayout() {
               navigate(user ? '/dashboard' : '/login');
             }}
           >
-            {user ? 'Dashboard' : 'Login'}
+            {user ? labels.dashboard : labels.login}
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 1 }}
+            onClick={() => {
+              setOpen(false);
+              navigate('/join');
+            }}
+          >
+            {labels.apply}
           </Button>
         </Box>
       </Drawer>

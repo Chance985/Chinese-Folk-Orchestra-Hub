@@ -119,8 +119,19 @@ export default function Members() {
             gap: 2,
           }}
         >
-          {filtered.map((member) => (
-            <Card key={member.id}>
+          {filtered.map((member, index) => (
+            <Card
+              key={member.id}
+              sx={{
+                animation: `cfFadeUp 520ms cubic-bezier(0.16, 1, 0.3, 1) ${index * 55}ms both`,
+                transition:
+                  'transform 240ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 18px 48px rgba(54, 20, 16, 0.11)',
+                },
+              }}
+            >
               <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
                   <DemoAvatar name={member.name} src={member.photo_url} />
