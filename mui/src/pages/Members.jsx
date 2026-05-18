@@ -20,8 +20,10 @@ import EmptyState from '../components/EmptyState.jsx';
 import LoadingState from '../components/LoadingState.jsx';
 import SectionHeader from '../components/SectionHeader.jsx';
 import { apiRequest } from '../api/client.js';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
 export default function Members() {
+  const { pick } = useLanguage();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,11 +59,14 @@ export default function Members() {
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 5, md: 8 } }}>
       <SectionHeader
-        title="Member Showcase"
-        subtitle="Demo placeholder profiles are used to test layout, search, filtering, and detail pages. These records are not actual orchestra members."
+        title={pick('Member Showcase', '成员展示')}
+        subtitle={pick(
+          'Demo placeholder profiles are used to test layout, search, filtering, and detail pages. These records are not actual orchestra members.',
+          '这里使用演示成员资料测试布局、搜索、筛选和详情页。这些记录不是实际乐团成员。',
+        )}
       />
       <Alert severity="warning" sx={{ mb: 3 }}>
-        Demo placeholder data only, not actual orchestra members.
+        {pick('Demo placeholder data only, not actual orchestra members.', '仅为演示占位数据，不代表实际乐团成员。')}
       </Alert>
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -73,15 +78,15 @@ export default function Members() {
             }}
           >
             <TextField
-              label="Search members"
+              label={pick('Search members', '搜索成员')}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               InputProps={{ startAdornment: <SearchRoundedIcon sx={{ mr: 1, color: 'text.secondary' }} /> }}
             />
             <FormControl>
-              <InputLabel>Instrument</InputLabel>
-              <Select value={instrument} label="Instrument" onChange={(event) => setInstrument(event.target.value)}>
-                <MenuItem value="">All instruments</MenuItem>
+              <InputLabel>{pick('Instrument', '乐器')}</InputLabel>
+              <Select value={instrument} label={pick('Instrument', '乐器')} onChange={(event) => setInstrument(event.target.value)}>
+                <MenuItem value="">{pick('All instruments', '全部乐器')}</MenuItem>
                 {instruments.map((item) => (
                   <MenuItem key={item} value={item}>
                     {item}
@@ -90,9 +95,9 @@ export default function Members() {
               </Select>
             </FormControl>
             <FormControl>
-              <InputLabel>Section</InputLabel>
-              <Select value={section} label="Section" onChange={(event) => setSection(event.target.value)}>
-                <MenuItem value="">All sections</MenuItem>
+              <InputLabel>{pick('Section', '声部')}</InputLabel>
+              <Select value={section} label={pick('Section', '声部')} onChange={(event) => setSection(event.target.value)}>
+                <MenuItem value="">{pick('All sections', '全部声部')}</MenuItem>
                 {sections.map((item) => (
                   <MenuItem key={item} value={item}>
                     {item}
@@ -104,7 +109,7 @@ export default function Members() {
         </CardContent>
       </Card>
       {loading ? (
-        <LoadingState label="Loading member showcase" />
+        <LoadingState label={pick('Loading member showcase', '正在加载成员展示')} />
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : filtered.length ? (
@@ -144,7 +149,7 @@ export default function Members() {
                 </Stack>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
                   <Chip size="small" label={member.role} color="secondary" />
-                  {member.is_demo && <Chip size="small" label="Demo data" color="warning" variant="outlined" />}
+                  {member.is_demo && <Chip size="small" label={pick('Demo data', '演示数据')} color="warning" variant="outlined" />}
                 </Stack>
                 <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, flex: 1 }}>
                   {member.bio}
@@ -155,14 +160,17 @@ export default function Members() {
                   ))}
                 </Stack>
                 <Button component={RouterLink} to={`/members/${member.id}`} variant="outlined" sx={{ mt: 2 }}>
-                  View profile
+                  {pick('View profile', '查看资料')}
                 </Button>
               </CardContent>
             </Card>
           ))}
         </Box>
       ) : (
-        <EmptyState title="No matching members" message="Try changing the search or filter settings." />
+        <EmptyState
+          title={pick('No matching members', '没有匹配的成员')}
+          message={pick('Try changing the search or filter settings.', '请尝试调整搜索或筛选条件。')}
+        />
       )}
     </Container>
   );

@@ -15,6 +15,7 @@ import LoadingState from '../components/LoadingState.jsx';
 import StatusChip from '../components/StatusChip.jsx';
 import { apiRequest } from '../api/client.js';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 import { formatDateTime } from '../utils/format.js';
 
 const statIcons = {
@@ -22,6 +23,14 @@ const statIcons = {
   pendingApplications: <AssignmentRoundedIcon />,
   upcomingEvents: <EventRoundedIcon />,
   announcements: <CampaignRoundedIcon />,
+};
+
+const eventTypeLabelsZh = {
+  Performance: '演出',
+  Rehearsal: '排练',
+  Recruitment: '招新',
+  Workshop: '工作坊',
+  'Club Activity': '社团活动',
 };
 
 function StatCard({ label, value, icon, helper }) {
@@ -46,6 +55,7 @@ function StatCard({ label, value, icon, helper }) {
 }
 
 export default function DashboardHome() {
+  const { language, pick } = useLanguage();
   const { user, isAdmin } = useAuth();
   const [summary, setSummary] = useState(null);
   const [events, setEvents] = useState([]);
@@ -78,33 +88,33 @@ export default function DashboardHome() {
     load();
   }, [isAdmin]);
 
-  if (loading) return <LoadingState label="Loading dashboard" />;
+  if (loading) return <LoadingState label={pick('Loading dashboard', '正在加载控制台')} />;
   if (error) return <Alert severity="error">{error}</Alert>;
 
   const stats = [
     {
       key: 'members',
-      label: 'Total members',
+      label: pick('Total members', '成员总数'),
       value: summary?.members ?? 0,
-      helper: 'Showcase records in the member profile database',
+      helper: pick('Showcase records in the member profile database', '成员资料库中的展示记录'),
     },
     {
       key: 'pendingApplications',
-      label: 'Pending applications',
+      label: pick('Pending applications', '待处理申请'),
       value: summary?.pendingApplications ?? 0,
-      helper: isAdmin ? 'Applications waiting for review' : 'Visible to admins only',
+      helper: isAdmin ? pick('Applications waiting for review', '等待审核的申请') : pick('Visible to admins only', '仅管理员可见'),
     },
     {
       key: 'upcomingEvents',
-      label: 'Upcoming events',
+      label: pick('Upcoming events', '即将开始的活动'),
       value: summary?.upcomingEvents ?? 0,
-      helper: 'Public and member-visible events',
+      helper: pick('Public and member-visible events', '公开和成员可见活动'),
     },
     {
       key: 'announcements',
-      label: 'Announcements',
+      label: pick('Announcements', '公告'),
       value: summary?.announcements ?? 0,
-      helper: 'Public, member, and admin notices',
+      helper: pick('Public, member, and admin notices', '公开、成员和管理员公告'),
     },
   ];
 
@@ -112,10 +122,10 @@ export default function DashboardHome() {
     <Stack spacing={3}>
       <Box>
         <Typography variant="h3" component="h1">
-          {isAdmin ? 'Admin Dashboard' : 'Member Dashboard'}
+          {isAdmin ? pick('Admin Dashboard', '管理员控制台') : pick('Member Dashboard', '成员控制台')}
         </Typography>
         <Typography color="text.secondary">
-          Signed in as {user.username} · {user.role}
+          {pick('Signed in as', '当前登录')} {user.username} / {pick(user.role, user.role === 'admin' ? '管理员' : '成员')}
         </Typography>
       </Box>
 
@@ -141,7 +151,7 @@ export default function DashboardHome() {
         <Card>
           <CardContent sx={{ p: 3 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
-              Upcoming events
+              {pick('Upcoming events', '即将开始的活动')}
             </Typography>
             {events.length ? (
               <Stack spacing={2}>
@@ -149,7 +159,7 @@ export default function DashboardHome() {
                   <Box key={event.id}>
                     <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
                       <Typography sx={{ fontWeight: 800 }}>{event.title}</Typography>
-                      <Chip size="small" label={event.type} color="secondary" />
+                      <Chip size="small" label={language === 'zh' ? eventTypeLabelsZh[event.type] || event.type : event.type} color="secondary" />
                       <StatusChip value={event.visibility} />
                     </Stack>
                     <Typography variant="body2" color="text.secondary">
@@ -159,14 +169,17 @@ export default function DashboardHome() {
                 ))}
               </Stack>
             ) : (
-              <EmptyState title="No events" message="Events created by admins will appear here." />
+              <EmptyState
+                title={pick('No events', '暂无活动')}
+                message={pick('Events created by admins will appear here.', '管理员创建的活动会显示在这里。')}
+              />
             )}
           </CardContent>
         </Card>
         <Card>
           <CardContent sx={{ p: 3 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
-              Announcements
+              {pick('Announcements', '公告')}
             </Typography>
             {announcements.length ? (
               <Stack spacing={2}>
@@ -183,7 +196,10 @@ export default function DashboardHome() {
                 ))}
               </Stack>
             ) : (
-              <EmptyState title="No announcements" message="Internal notices will appear here." />
+              <EmptyState
+                title={pick('No announcements', '暂无公告')}
+                message={pick('Internal notices will appear here.', '内部通知会显示在这里。')}
+              />
             )}
           </CardContent>
         </Card>
@@ -193,7 +209,7 @@ export default function DashboardHome() {
         <Card>
           <CardContent sx={{ p: 3 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
-              Recent applications
+              {pick('Recent applications', '最近申请')}
             </Typography>
             {applications.length ? (
               <Stack spacing={1.5}>
@@ -216,7 +232,10 @@ export default function DashboardHome() {
                 ))}
               </Stack>
             ) : (
-              <EmptyState title="No applications yet" message="Submitted join forms will appear here." />
+              <EmptyState
+                title={pick('No applications yet', '暂无申请')}
+                message={pick('Submitted join forms will appear here.', '提交的加入申请会显示在这里。')}
+              />
             )}
           </CardContent>
         </Card>

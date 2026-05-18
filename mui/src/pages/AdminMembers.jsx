@@ -15,6 +15,7 @@ import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
+import { zhCN } from '@mui/x-data-grid/locales';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
@@ -22,6 +23,7 @@ import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import DemoAvatar from '../components/DemoAvatar.jsx';
 import { apiRequest } from '../api/client.js';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 import { joinTags } from '../utils/format.js';
 
 const emptyMember = {
@@ -37,7 +39,16 @@ const emptyMember = {
   is_demo: false,
 };
 
+const fieldLabels = {
+  name: ['Name', '姓名'],
+  instrument: ['Instrument', '乐器'],
+  section: ['Section', '声部'],
+  role: ['Role', '角色'],
+};
+
 export default function AdminMembers() {
+  const { language, pick } = useLanguage();
+  const gridLocaleText = language === 'zh' ? zhCN.components.MuiDataGrid.defaultProps.localeText : undefined;
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -105,7 +116,7 @@ export default function AdminMembers() {
     () => [
       {
         field: 'profile',
-        headerName: 'Member',
+        headerName: pick('Member', '成员'),
         flex: 1.2,
         minWidth: 210,
         sortable: false,
@@ -121,44 +132,44 @@ export default function AdminMembers() {
           </Stack>
         ),
       },
-      { field: 'instrument', headerName: 'Instrument', flex: 0.8, minWidth: 130 },
-      { field: 'section', headerName: 'Section', flex: 0.9, minWidth: 150 },
+      { field: 'instrument', headerName: pick('Instrument', '乐器'), flex: 0.8, minWidth: 130 },
+      { field: 'section', headerName: pick('Section', '声部'), flex: 0.9, minWidth: 150 },
       {
         field: 'tags',
-        headerName: 'Tags',
+        headerName: pick('Tags', '标签'),
         flex: 1,
         minWidth: 180,
         valueGetter: (value) => joinTags(value),
       },
       {
         field: 'is_demo',
-        headerName: 'Demo',
+        headerName: pick('Demo', '演示'),
         width: 100,
         renderCell: ({ row }) =>
-          row.is_demo ? <Chip size="small" label="Demo" color="warning" variant="outlined" /> : 'No',
+          row.is_demo ? <Chip size="small" label={pick('Demo', '演示')} color="warning" variant="outlined" /> : pick('No', '否'),
       },
       {
         field: 'actions',
         type: 'actions',
-        headerName: 'Actions',
+        headerName: pick('Actions', '操作'),
         width: 120,
         getActions: ({ row }) => [
           <GridActionsCellItem
             key="edit"
             icon={<EditRoundedIcon />}
-            label="Edit"
+            label={pick('Edit', '编辑')}
             onClick={() => openEdit(row)}
           />,
           <GridActionsCellItem
             key="delete"
             icon={<DeleteRoundedIcon />}
-            label="Delete"
+            label={pick('Delete', '删除')}
             onClick={() => setDeleteTarget(row)}
           />,
         ],
       },
     ],
-    [],
+    [pick],
   );
 
   return (
@@ -166,18 +177,20 @@ export default function AdminMembers() {
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={2}>
         <Box>
           <Typography variant="h3" component="h1">
-            Manage Members
+            {pick('Manage Members', '管理成员')}
           </Typography>
-          <Typography color="text.secondary">Create, edit, and remove showcase profiles.</Typography>
+          <Typography color="text.secondary">
+            {pick('Create, edit, and remove showcase profiles.', '创建、编辑和删除成员展示资料。')}
+          </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Refresh members">
-            <IconButton onClick={load} aria-label="Refresh members">
+          <Tooltip title={pick('Refresh members', '刷新成员')}>
+            <IconButton onClick={load} aria-label={pick('Refresh members', '刷新成员')}>
               <RefreshRoundedIcon />
             </IconButton>
           </Tooltip>
           <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreate}>
-            New member
+            {pick('New member', '新建成员')}
           </Button>
         </Stack>
       </Stack>
@@ -186,6 +199,7 @@ export default function AdminMembers() {
         <DataGrid
           rows={rows}
           columns={columns}
+          localeText={gridLocaleText}
           loading={loading}
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 25]}
@@ -195,7 +209,7 @@ export default function AdminMembers() {
       </Box>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>{editingId ? 'Edit member' : 'Create member'}</DialogTitle>
+        <DialogTitle>{editingId ? pick('Edit member', '编辑成员') : pick('Create member', '创建成员')}</DialogTitle>
         <DialogContent>
           <Box
             sx={{
@@ -208,31 +222,31 @@ export default function AdminMembers() {
             {['name', 'instrument', 'section', 'role'].map((field) => (
               <TextField
                 key={field}
-                label={field.replace('_', ' ')}
+                label={pick(...fieldLabels[field])}
                 value={form[field] || ''}
                 onChange={(event) => setForm((current) => ({ ...current, [field]: event.target.value }))}
                 required
               />
             ))}
             <TextField
-              label="Photo URL"
+              label={pick('Photo URL', '照片链接')}
               value={form.photo_url || ''}
               onChange={(event) => setForm((current) => ({ ...current, photo_url: event.target.value }))}
             />
             <TextField
-              label="Video URL"
+              label={pick('Video URL', '视频链接')}
               value={form.video_url || ''}
               onChange={(event) => setForm((current) => ({ ...current, video_url: event.target.value }))}
             />
             <TextField
-              label="Tags"
+              label={pick('Tags', '标签')}
               value={form.tags || ''}
               onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
-              helperText="Comma-separated tags"
+              helperText={pick('Comma-separated tags', '用英文逗号分隔多个标签')}
               sx={{ gridColumn: { md: '1 / -1' } }}
             />
             <TextField
-              label="Bio"
+              label={pick('Bio', '简介')}
               value={form.bio || ''}
               onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))}
               multiline
@@ -241,7 +255,7 @@ export default function AdminMembers() {
               sx={{ gridColumn: { md: '1 / -1' } }}
             />
             <TextField
-              label="Source note"
+              label={pick('Source note', '来源说明')}
               value={form.source_note || ''}
               onChange={(event) => setForm((current) => ({ ...current, source_note: event.target.value }))}
               multiline
@@ -255,22 +269,22 @@ export default function AdminMembers() {
                   onChange={(event) => setForm((current) => ({ ...current, is_demo: event.target.checked }))}
                 />
               }
-              label="Mark as demo placeholder data"
+              label={pick('Mark as demo placeholder data', '标记为演示占位数据')}
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDialogOpen(false)}>{pick('Cancel', '取消')}</Button>
           <Button variant="contained" onClick={saveMember}>
-            Save
+            {pick('Save', '保存')}
           </Button>
         </DialogActions>
       </Dialog>
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
-        title="Delete member?"
-        message={`Delete ${deleteTarget?.name || 'this member'} from the showcase?`}
+        title={pick('Delete member?', '删除成员？')}
+        message={pick(`Delete ${deleteTarget?.name || 'this member'} from the showcase?`, `确定从展示中删除${deleteTarget?.name || '这名成员'}？`)}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={deleteMember}
       />

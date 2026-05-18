@@ -6,6 +6,7 @@ import { brandTokens } from '../theme/AppTheme.jsx';
 
 export default function BrandMark({ compact = false }) {
   const { isChinese } = useLanguage();
+  const name = isChinese ? '民乐团枢纽' : 'Chinese Folk Orchestra Hub';
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.1, minWidth: 0 }}>
@@ -33,7 +34,7 @@ export default function BrandMark({ compact = false }) {
             variant="subtitle1"
             sx={{ fontWeight: 800, lineHeight: 1.05, color: brandTokens.ink }}
           >
-            Chinese Folk Orchestra Hub
+            {name}
           </Typography>
           <Typography
             variant="caption"

@@ -38,6 +38,8 @@ const navLabels = {
     login: 'Login',
     apply: 'Apply',
     language: '中文',
+    openNavigation: 'Open navigation',
+    closeNavigation: 'Close navigation',
   },
   zh: {
     home: '首页',
@@ -48,8 +50,10 @@ const navLabels = {
     resources: '资源',
     dashboard: '控制台',
     login: '登录',
-    apply: '申请加入',
+    apply: '申请',
     language: 'EN',
+    openNavigation: '打开导航',
+    closeNavigation: '关闭导航',
   },
 };
 
@@ -126,7 +130,7 @@ export default function PublicLayout() {
               </Button>
             </Box>
             <IconButton
-              aria-label="Open navigation"
+              aria-label={labels.openNavigation}
               onClick={() => setOpen(true)}
               sx={{ display: { xs: 'inline-flex', md: 'none' } }}
             >
@@ -140,7 +144,7 @@ export default function PublicLayout() {
         <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <BrandMark />
-            <IconButton aria-label="Close navigation" onClick={() => setOpen(false)}>
+            <IconButton aria-label={labels.closeNavigation} onClick={() => setOpen(false)}>
               <CloseRoundedIcon />
             </IconButton>
           </Box>

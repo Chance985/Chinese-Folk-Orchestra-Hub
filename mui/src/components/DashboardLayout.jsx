@@ -26,29 +26,63 @@ import PublicRoundedIcon from '@mui/icons-material/PublicRounded';
 import SourceRoundedIcon from '@mui/icons-material/SourceRounded';
 import BrandMark from './BrandMark.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
 const drawerWidth = 268;
 
 const adminItems = [
-  { label: 'Dashboard', path: '/dashboard', icon: <DashboardRoundedIcon /> },
-  { label: 'Members', path: '/dashboard/members', icon: <GroupRoundedIcon /> },
-  { label: 'Applications', path: '/dashboard/applications', icon: <AssignmentRoundedIcon /> },
-  { label: 'Announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
-  { label: 'Events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
-  { label: 'Resources', path: '/dashboard/resources', icon: <SourceRoundedIcon /> },
+  { key: 'dashboard', path: '/dashboard', icon: <DashboardRoundedIcon /> },
+  { key: 'members', path: '/dashboard/members', icon: <GroupRoundedIcon /> },
+  { key: 'applications', path: '/dashboard/applications', icon: <AssignmentRoundedIcon /> },
+  { key: 'announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
+  { key: 'events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
+  { key: 'resources', path: '/dashboard/resources', icon: <SourceRoundedIcon /> },
 ];
 
 const memberItems = [
-  { label: 'Dashboard', path: '/dashboard', icon: <DashboardRoundedIcon /> },
-  { label: 'My Profile', path: '/dashboard/profile', icon: <AccountCircleRoundedIcon /> },
-  { label: 'Announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
-  { label: 'Events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
+  { key: 'dashboard', path: '/dashboard', icon: <DashboardRoundedIcon /> },
+  { key: 'profile', path: '/dashboard/profile', icon: <AccountCircleRoundedIcon /> },
+  { key: 'announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
+  { key: 'events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
 ];
+
+const labels = {
+  en: {
+    dashboard: 'Dashboard',
+    members: 'Members',
+    applications: 'Applications',
+    announcements: 'Announcements',
+    events: 'Events',
+    resources: 'Resources',
+    profile: 'My Profile',
+    publicSite: 'Public site',
+    mobileTitle: 'Orchestra Hub',
+    openNavigation: 'Open dashboard navigation',
+    logout: 'Log out',
+    roles: { admin: 'admin', member: 'member' },
+  },
+  zh: {
+    dashboard: '控制台',
+    members: '成员',
+    applications: '申请',
+    announcements: '公告',
+    events: '活动',
+    resources: '资源',
+    profile: '我的资料',
+    publicSite: '公开网站',
+    mobileTitle: '民乐团枢纽',
+    openNavigation: '打开控制台导航',
+    logout: '退出登录',
+    roles: { admin: '管理员', member: '成员' },
+  },
+};
 
 function SidebarContent({ onNavigate }) {
   const { user, logout, isAdmin } = useAuth();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const items = isAdmin ? adminItems : memberItems;
+  const t = labels[language];
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -75,7 +109,7 @@ function SidebarContent({ onNavigate }) {
             }}
           >
             <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} />
+            <ListItemText primary={t[item.key]} />
           </ListItemButton>
         ))}
       </List>
@@ -89,11 +123,11 @@ function SidebarContent({ onNavigate }) {
             {user?.username}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {user?.role}
+            {t.roles[user?.role] || user?.role}
           </Typography>
         </Box>
         <IconButton
-          aria-label="Log out"
+          aria-label={t.logout}
           onClick={() => {
             logout();
             navigate('/');
@@ -108,6 +142,8 @@ function SidebarContent({ onNavigate }) {
 
 export default function DashboardLayout() {
   const theme = useTheme();
+  const { language } = useLanguage();
+  const t = labels[language];
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [open, setOpen] = useState(false);
 
@@ -124,11 +160,11 @@ export default function DashboardLayout() {
         }}
       >
         <Toolbar>
-          <IconButton aria-label="Open dashboard navigation" onClick={() => setOpen(true)}>
+          <IconButton aria-label={t.openNavigation} onClick={() => setOpen(true)}>
             <MenuRoundedIcon />
           </IconButton>
           <Typography variant="h6" sx={{ ml: 1 }}>
-            Orchestra Hub
+            {t.mobileTitle}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -180,6 +216,9 @@ export default function DashboardLayout() {
 }
 
 function ButtonLikeLink() {
+  const { language } = useLanguage();
+  const t = labels[language];
+
   return (
     <ListItemButton
       component={RouterLink}
@@ -195,7 +234,7 @@ function ButtonLikeLink() {
       <ListItemIcon sx={{ minWidth: 34 }}>
         <PublicRoundedIcon fontSize="small" />
       </ListItemIcon>
-      <ListItemText primary="Public site" />
+      <ListItemText primary={t.publicSite} />
     </ListItemButton>
   );
 }

@@ -14,9 +14,19 @@ import LoadingState from '../components/LoadingState.jsx';
 import SectionHeader from '../components/SectionHeader.jsx';
 import StatusChip from '../components/StatusChip.jsx';
 import { apiRequest } from '../api/client.js';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 import { formatDateTime } from '../utils/format.js';
 
+const eventTypeLabelsZh = {
+  Performance: '演出',
+  Rehearsal: '排练',
+  Recruitment: '招新',
+  Workshop: '工作坊',
+  'Club Activity': '社团活动',
+};
+
 export default function Events() {
+  const { language, pick } = useLanguage();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,11 +41,14 @@ export default function Events() {
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 5, md: 8 } }}>
       <SectionHeader
-        title="Events"
-        subtitle="Browse performances, recruitment interviews, rehearsals, and club activities. Public visitors only see public events; logged-in users can also see member-only events."
+        title={pick('Events', '活动')}
+        subtitle={pick(
+          'Browse performances, recruitment interviews, rehearsals, and club activities. Public visitors only see public events; logged-in users can also see member-only events.',
+          '浏览演出、招新面试、排练和社团活动。访客只会看到公开活动；登录用户还可以看到成员可见活动。',
+        )}
       />
       {loading ? (
-        <LoadingState label="Loading events" />
+        <LoadingState label={pick('Loading events', '正在加载活动')} />
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : events.length ? (
@@ -55,7 +68,7 @@ export default function Events() {
             >
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
-                  <Chip label={event.type} color="secondary" />
+                  <Chip label={language === 'zh' ? eventTypeLabelsZh[event.type] || event.type : event.type} color="secondary" />
                   <StatusChip value={event.visibility} />
                 </Stack>
                 <Typography variant="h5" sx={{ mb: 1 }}>
@@ -79,7 +92,10 @@ export default function Events() {
           ))}
         </Box>
       ) : (
-        <EmptyState title="No events yet" message="Events will appear after an admin creates them." />
+        <EmptyState
+          title={pick('No events yet', '暂无活动')}
+          message={pick('Events will appear after an admin creates them.', '管理员创建活动后会显示在这里。')}
+        />
       )}
     </Container>
   );

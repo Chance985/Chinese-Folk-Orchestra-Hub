@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
 function SkeletonLine({ width = '100%' }) {
   return (
@@ -25,7 +26,10 @@ function SkeletonLine({ width = '100%' }) {
   );
 }
 
-export default function LoadingState({ label = 'Loading content' }) {
+export default function LoadingState({ label }) {
+  const { pick } = useLanguage();
+  const resolvedLabel = label || pick('Loading content', '正在加载内容');
+
   return (
     <Box
       sx={{
@@ -47,7 +51,7 @@ export default function LoadingState({ label = 'Loading content' }) {
         }}
       >
         <Typography color="text.secondary" sx={{ fontWeight: 700 }}>
-          {label}
+          {resolvedLabel}
         </Typography>
         <SkeletonLine width="82%" />
         <SkeletonLine width="100%" />

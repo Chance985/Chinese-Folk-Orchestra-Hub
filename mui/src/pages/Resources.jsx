@@ -14,8 +14,10 @@ import EmptyState from '../components/EmptyState.jsx';
 import LoadingState from '../components/LoadingState.jsx';
 import SectionHeader from '../components/SectionHeader.jsx';
 import { apiRequest } from '../api/client.js';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
 export default function Resources() {
+  const { pick } = useLanguage();
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,17 +32,22 @@ export default function Resources() {
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 5, md: 8 } }}>
       <SectionHeader
-        title="External Resources"
-        subtitle="This page declares AI assistance, local templates, frameworks, libraries, demo data, and generated placeholder assets used in the project."
+        title={pick('External Resources', '外部资源')}
+        subtitle={pick(
+          'This page declares AI assistance, local templates, frameworks, libraries, demo data, and generated placeholder assets used in the project.',
+          '本页声明项目使用的 AI 辅助、本地模板、框架、库、演示数据和生成的占位素材。',
+        )}
       />
       <Alert severity="warning" sx={{ mb: 3 }}>
-        Demo member data is placeholder content only and does not represent actual
-        Chinese Folk Orchestra club members.
+        {pick(
+          'Demo member data is placeholder content only and does not represent actual Chinese Folk Orchestra club members.',
+          '演示成员数据仅为占位内容，不代表实际民乐团成员。',
+        )}
       </Alert>
       <Card>
         <CardContent sx={{ p: { xs: 2, md: 3 } }}>
           {loading ? (
-            <LoadingState label="Loading resources" />
+            <LoadingState label={pick('Loading resources', '正在加载资源')} />
           ) : error ? (
             <Alert severity="error">{error}</Alert>
           ) : resources.length ? (
@@ -48,10 +55,10 @@ export default function Resources() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Resource type</TableCell>
-                    <TableCell>Source</TableCell>
-                    <TableCell>What was used</TableCell>
-                    <TableCell>How modified</TableCell>
+                    <TableCell>{pick('Resource type', '资源类型')}</TableCell>
+                    <TableCell>{pick('Source', '来源')}</TableCell>
+                    <TableCell>{pick('What was used', '使用内容')}</TableCell>
+                    <TableCell>{pick('How modified', '修改方式')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -69,7 +76,10 @@ export default function Resources() {
               </Table>
             </TableContainer>
           ) : (
-            <EmptyState title="No resources recorded" message="Resource declarations will appear here." />
+            <EmptyState
+              title={pick('No resources recorded', '暂无资源记录')}
+              message={pick('Resource declarations will appear here.', '资源声明会显示在这里。')}
+            />
           )}
         </CardContent>
       </Card>

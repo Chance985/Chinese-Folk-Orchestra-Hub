@@ -14,10 +14,12 @@ import EmptyState from '../components/EmptyState.jsx';
 import LoadingState from '../components/LoadingState.jsx';
 import { apiRequest } from '../api/client.js';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 import { joinTags } from '../utils/format.js';
 
 export default function MemberProfile() {
   const { user } = useAuth();
+  const { pick } = useLanguage();
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(Boolean(user?.member_id));
   const [saving, setSaving] = useState(false);
@@ -69,7 +71,7 @@ export default function MemberProfile() {
         video_url: data.item.video_url || '',
         tags: joinTags(data.item.tags),
       });
-      setSuccess('Profile changes saved.');
+      setSuccess(pick('Profile changes saved.', '资料修改已保存。'));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -80,22 +82,25 @@ export default function MemberProfile() {
   if (!user?.member_id) {
     return (
       <EmptyState
-        title="No linked member profile"
-        message="This account is not linked to a member showcase profile yet."
+        title={pick('No linked member profile', '没有关联的成员资料')}
+        message={pick('This account is not linked to a member showcase profile yet.', '此账号尚未关联成员展示资料。')}
       />
     );
   }
 
-  if (loading) return <LoadingState label="Loading profile" />;
+  if (loading) return <LoadingState label={pick('Loading profile', '正在加载资料')} />;
 
   return (
     <Stack spacing={2.5}>
       <Box>
         <Typography variant="h3" component="h1">
-          My Profile
+          {pick('My Profile', '我的资料')}
         </Typography>
         <Typography color="text.secondary">
-          Member accounts can update their bio, media links, and public showcase tags.
+          {pick(
+            'Member accounts can update their bio, media links, and public showcase tags.',
+            '成员账号可以更新简介、媒体链接和公开展示标签。',
+          )}
         </Typography>
       </Box>
       {error && <Alert severity="error">{error}</Alert>}
@@ -120,7 +125,7 @@ export default function MemberProfile() {
                 </Stack>
                 {member.is_demo && (
                   <Alert severity="warning" sx={{ mt: 2 }}>
-                    Demo placeholder data only, not actual orchestra members.
+                    {pick('Demo placeholder data only, not actual orchestra members.', '仅为演示占位数据，不代表真实乐团成员。')}
                   </Alert>
                 )}
               </Box>
@@ -133,11 +138,14 @@ export default function MemberProfile() {
         <CardContent sx={{ p: { xs: 3, md: 4 } }}>
           <Stack spacing={2.5}>
             <Box>
-              <Typography variant="h5" component="h2">
-                Edit Showcase Details
+                <Typography variant="h5" component="h2">
+                {pick('Edit Showcase Details', '编辑展示资料')}
               </Typography>
               <Typography color="text.secondary">
-                Instrument, section, and role are managed by admins to keep roster records consistent.
+                {pick(
+                  'Instrument, section, and role are managed by admins to keep roster records consistent.',
+                  '乐器、声部和角色由管理员维护，以保持成员名册一致。',
+                )}
               </Typography>
             </Box>
             <Box
@@ -148,24 +156,24 @@ export default function MemberProfile() {
               }}
             >
               <TextField
-                label="Photo URL"
+                label={pick('Photo URL', '照片链接')}
                 value={form.photo_url}
                 onChange={(event) => setForm((current) => ({ ...current, photo_url: event.target.value }))}
               />
               <TextField
-                label="Video URL"
+                label={pick('Video URL', '视频链接')}
                 value={form.video_url}
                 onChange={(event) => setForm((current) => ({ ...current, video_url: event.target.value }))}
               />
               <TextField
-                label="Tags"
-                helperText="Comma-separated showcase tags"
+                label={pick('Tags', '标签')}
+                helperText={pick('Comma-separated showcase tags', '用英文逗号分隔多个展示标签')}
                 value={form.tags}
                 onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
                 sx={{ gridColumn: { md: '1 / -1' } }}
               />
               <TextField
-                label="Bio"
+                label={pick('Bio', '简介')}
                 value={form.bio}
                 onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))}
                 multiline
@@ -181,7 +189,7 @@ export default function MemberProfile() {
                 onClick={saveProfile}
                 disabled={saving}
               >
-                {saving ? 'Saving...' : 'Save profile'}
+                {saving ? pick('Saving...', '保存中...') : pick('Save profile', '保存资料')}
               </Button>
             </Box>
           </Stack>

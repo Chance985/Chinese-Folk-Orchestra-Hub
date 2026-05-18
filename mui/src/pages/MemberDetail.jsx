@@ -13,8 +13,10 @@ import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import DemoAvatar from '../components/DemoAvatar.jsx';
 import LoadingState from '../components/LoadingState.jsx';
 import { apiRequest } from '../api/client.js';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
 export default function MemberDetail() {
+  const { pick } = useLanguage();
   const { id } = useParams();
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function MemberDetail() {
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <LoadingState label="Loading member profile" />
+        <LoadingState label={pick('Loading member profile', '正在加载成员资料')} />
       </Container>
     );
   }
@@ -47,7 +49,7 @@ export default function MemberDetail() {
     <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 } }}>
       {member?.is_demo && (
         <Alert severity="warning" sx={{ mb: 3 }}>
-          Demo placeholder data only, not actual orchestra members.
+          {pick('Demo placeholder data only, not actual orchestra members.', '仅为演示占位数据，不代表实际乐团成员。')}
         </Alert>
       )}
       <Card>
@@ -89,11 +91,11 @@ export default function MemberDetail() {
                 ))}
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                Source note: {member.source_note}
+                {pick('Source note:', '来源说明：')} {member.source_note}
               </Typography>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                 <Button component={RouterLink} to="/members" variant="outlined">
-                  Back to showcase
+                  {pick('Back to showcase', '返回成员展示')}
                 </Button>
                 {member.video_url && (
                   <Button
@@ -104,7 +106,7 @@ export default function MemberDetail() {
                     variant="contained"
                     endIcon={<OpenInNewRoundedIcon />}
                   >
-                    Open video
+                    {pick('Open video', '打开视频')}
                   </Button>
                 )}
               </Stack>

@@ -12,8 +12,10 @@ import Typography from '@mui/material/Typography';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import BrandMark from '../components/BrandMark.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
 export default function Login() {
+  const { pick } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,7 +28,7 @@ export default function Login() {
     event.preventDefault();
     setError('');
     if (!username || !password) {
-      setError('Username and password are required.');
+      setError(pick('Username and password are required.', '请输入用户名和密码。'));
       return;
     }
     setSubmitting(true);
@@ -64,17 +66,20 @@ export default function Login() {
                 <BrandMark />
                 <Box>
                   <Typography variant="h3" sx={{ mb: 1 }}>
-                    Member and Admin Login
+                    {pick('Member and Admin Login', '成员与管理员登录')}
                   </Typography>
                   <Typography color="text.secondary" sx={{ lineHeight: 1.75 }}>
-                    Role-based authentication protects the internal dashboard.
-                    Administrators can manage core records; members can view
-                    announcements, rehearsals, and their profile.
+                    {pick(
+                      'Role-based authentication protects the internal dashboard. Administrators can manage core records; members can view announcements, rehearsals, and their profile.',
+                      '基于角色的登录保护内部控制台。管理员可以管理核心记录；成员可以查看公告、排练和个人资料。',
+                    )}
                   </Typography>
                 </Box>
                 <Alert severity="info">
-                  Test usernames are documented in the README. Passwords are not
-                  displayed in the public website UI.
+                  {pick(
+                    'Test usernames are documented in the README. Passwords are not displayed in the public website UI.',
+                    '测试账号记录在 README 中。公开网站界面不会显示密码。',
+                  )}
                 </Alert>
               </Stack>
             </CardContent>
@@ -85,10 +90,10 @@ export default function Login() {
                 <Stack spacing={2.2}>
                   <LockRoundedIcon color="primary" sx={{ fontSize: 44 }} />
                   <Typography variant="h4" component="h1">
-                    Sign in
+                    {pick('Sign in', '登录')}
                   </Typography>
                   <TextField
-                    label="Username"
+                    label={pick('Username', '用户名')}
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
                     autoComplete="username"
@@ -96,7 +101,7 @@ export default function Login() {
                     autoFocus
                   />
                   <TextField
-                    label="Password"
+                    label={pick('Password', '密码')}
                     type="password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
@@ -105,10 +110,10 @@ export default function Login() {
                   />
                   {error && <Alert severity="error">{error}</Alert>}
                   <Button type="submit" variant="contained" size="large" disabled={submitting}>
-                    {submitting ? 'Signing in...' : 'Sign in'}
+                    {submitting ? pick('Signing in...', '登录中...') : pick('Sign in', '登录')}
                   </Button>
                   <Button component={RouterLink} to="/join" variant="text">
-                    Apply to join the orchestra
+                    {pick('Apply to join the orchestra', '申请加入乐团')}
                   </Button>
                 </Stack>
               </Box>

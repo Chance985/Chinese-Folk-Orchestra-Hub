@@ -72,8 +72,8 @@ const copy = {
     heroAlt: 'Chinese folk orchestra rehearsal with traditional instruments',
   },
   zh: {
-    overline: '民乐团宣传与成员管理系统',
-    title: 'Chinese Folk Orchestra Hub',
+    overline: '民乐团宣传与成员管理',
+    title: '民乐团枢纽',
     summary: '面向访客的民乐团宣传网站，也是处理报名、活动、公告、成员资料和管理员审核的内部管理平台。',
     primaryCta: '申请加入',
     secondaryCta: '查看活动',

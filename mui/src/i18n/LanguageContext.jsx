@@ -27,6 +27,7 @@ export function LanguageProvider({ children }) {
     () => ({
       language,
       isChinese: language === 'zh',
+      pick: (english, chinese) => (language === 'zh' ? chinese : english),
       setLanguage,
       toggleLanguage,
     }),

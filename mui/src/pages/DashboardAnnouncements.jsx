@@ -15,6 +15,7 @@ import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
+import { zhCN } from '@mui/x-data-grid/locales';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
@@ -25,6 +26,7 @@ import LoadingState from '../components/LoadingState.jsx';
 import StatusChip from '../components/StatusChip.jsx';
 import { apiRequest } from '../api/client.js';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 import { formatDateTime } from '../utils/format.js';
 
 const emptyAnnouncement = {
@@ -35,6 +37,8 @@ const emptyAnnouncement = {
 
 export default function DashboardAnnouncements() {
   const { isAdmin } = useAuth();
+  const { language, pick } = useLanguage();
+  const gridLocaleText = language === 'zh' ? zhCN.components.MuiDataGrid.defaultProps.localeText : undefined;
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -93,17 +97,17 @@ export default function DashboardAnnouncements() {
 
   const columns = useMemo(
     () => [
-      { field: 'title', headerName: 'Title', flex: 1, minWidth: 220 },
-      { field: 'content', headerName: 'Content', flex: 1.4, minWidth: 260 },
+      { field: 'title', headerName: pick('Title', '标题'), flex: 1, minWidth: 220 },
+      { field: 'content', headerName: pick('Content', '内容'), flex: 1.4, minWidth: 260 },
       {
         field: 'visible_to',
-        headerName: 'Visible to',
+        headerName: pick('Visible to', '可见范围'),
         width: 130,
         renderCell: ({ row }) => <StatusChip value={row.visible_to} />,
       },
       {
         field: 'updated_at',
-        headerName: 'Updated',
+        headerName: pick('Updated', '更新时间'),
         flex: 0.9,
         minWidth: 170,
         valueFormatter: (value) => formatDateTime(value),
@@ -116,19 +120,19 @@ export default function DashboardAnnouncements() {
           <GridActionsCellItem
             key="edit"
             icon={<EditRoundedIcon />}
-            label="Edit"
+            label={pick('Edit', '编辑')}
             onClick={() => openEdit(row)}
           />,
           <GridActionsCellItem
             key="delete"
             icon={<DeleteRoundedIcon />}
-            label="Delete"
+            label={pick('Delete', '删除')}
             onClick={() => setDeleteTarget(row)}
           />,
         ],
       },
     ],
-    [],
+    [pick],
   );
 
   if (!isAdmin) {
@@ -136,12 +140,14 @@ export default function DashboardAnnouncements() {
       <Stack spacing={2.5}>
         <Box>
           <Typography variant="h3" component="h1">
-            Announcements
+            {pick('Announcements', '公告')}
           </Typography>
-          <Typography color="text.secondary">Internal and public notices visible to members.</Typography>
+          <Typography color="text.secondary">
+            {pick('Internal and public notices visible to members.', '成员可查看的内部通知和公开公告。')}
+          </Typography>
         </Box>
         {loading ? (
-          <LoadingState label="Loading announcements" />
+          <LoadingState label={pick('Loading announcements', '正在加载公告')} />
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : rows.length ? (
@@ -161,7 +167,7 @@ export default function DashboardAnnouncements() {
             ))}
           </Stack>
         ) : (
-          <EmptyState title="No announcements" message="Announcements will appear here." />
+          <EmptyState title={pick('No announcements', '暂无公告')} message={pick('Announcements will appear here.', '公告会显示在这里。')} />
         )}
       </Stack>
     );
@@ -172,18 +178,20 @@ export default function DashboardAnnouncements() {
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={2}>
         <Box>
           <Typography variant="h3" component="h1">
-            Manage Announcements
+            {pick('Manage Announcements', '管理公告')}
           </Typography>
-          <Typography color="text.secondary">Create, edit, and delete public or internal announcements.</Typography>
+          <Typography color="text.secondary">
+            {pick('Create, edit, and delete public or internal announcements.', '创建、编辑和删除公开或内部公告。')}
+          </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Refresh announcements">
-            <IconButton onClick={load} aria-label="Refresh announcements">
+          <Tooltip title={pick('Refresh announcements', '刷新公告')}>
+            <IconButton onClick={load} aria-label={pick('Refresh announcements', '刷新公告')}>
               <RefreshRoundedIcon />
             </IconButton>
           </Tooltip>
           <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreate}>
-            New announcement
+            {pick('New announcement', '新建公告')}
           </Button>
         </Stack>
       </Stack>
@@ -192,6 +200,7 @@ export default function DashboardAnnouncements() {
         <DataGrid
           rows={rows}
           columns={columns}
+          localeText={gridLocaleText}
           loading={loading}
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 25]}
@@ -200,17 +209,17 @@ export default function DashboardAnnouncements() {
       </Box>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingId ? 'Edit announcement' : 'Create announcement'}</DialogTitle>
+        <DialogTitle>{editingId ? pick('Edit announcement', '编辑公告') : pick('Create announcement', '创建公告')}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
             <TextField
-              label="Title"
+              label={pick('Title', '标题')}
               value={form.title}
               onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
               required
             />
             <TextField
-              label="Content"
+              label={pick('Content', '内容')}
               value={form.content}
               onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
               multiline
@@ -219,28 +228,28 @@ export default function DashboardAnnouncements() {
             />
             <TextField
               select
-              label="Visible to"
+              label={pick('Visible to', '可见范围')}
               value={form.visible_to}
               onChange={(event) => setForm((current) => ({ ...current, visible_to: event.target.value }))}
             >
-              <MenuItem value="public">public</MenuItem>
-              <MenuItem value="members">members</MenuItem>
-              <MenuItem value="admin">admin</MenuItem>
+              <MenuItem value="public">{pick('public', '公开')}</MenuItem>
+              <MenuItem value="members">{pick('members', '成员可见')}</MenuItem>
+              <MenuItem value="admin">{pick('admin', '管理员可见')}</MenuItem>
             </TextField>
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDialogOpen(false)}>{pick('Cancel', '取消')}</Button>
           <Button variant="contained" onClick={save}>
-            Save
+            {pick('Save', '保存')}
           </Button>
         </DialogActions>
       </Dialog>
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
-        title="Delete announcement?"
-        message={`Delete "${deleteTarget?.title || 'this announcement'}"?`}
+        title={pick('Delete announcement?', '删除公告？')}
+        message={pick(`Delete "${deleteTarget?.title || 'this announcement'}"?`, `确定删除“${deleteTarget?.title || '这条公告'}”？`)}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={remove}
       />

@@ -1,8 +1,13 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
+import { useLanguage } from '../i18n/LanguageContext.jsx';
 
-export default function EmptyState({ title = 'No records yet', message = 'New content will appear here.' }) {
+export default function EmptyState({ title, message }) {
+  const { pick } = useLanguage();
+  const resolvedTitle = title || pick('No records yet', '暂无记录');
+  const resolvedMessage = message || pick('New content will appear here.', '新的内容会显示在这里。');
+
   return (
     <Box
       sx={{
@@ -20,8 +25,8 @@ export default function EmptyState({ title = 'No records yet', message = 'New co
     >
       <Box>
         <Inventory2RoundedIcon color="secondary" sx={{ fontSize: 42, mb: 1 }} />
-        <Typography variant="h6">{title}</Typography>
-        <Typography color="text.secondary">{message}</Typography>
+        <Typography variant="h6">{resolvedTitle}</Typography>
+        <Typography color="text.secondary">{resolvedMessage}</Typography>
       </Box>
     </Box>
   );
