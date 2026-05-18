@@ -39,6 +39,12 @@ function migrateDatabase() {
       tags TEXT NOT NULL DEFAULT '[]',
       source_note TEXT NOT NULL,
       is_demo INTEGER NOT NULL DEFAULT 1,
+      chinese_name TEXT,
+      pinyin_name TEXT,
+      gender TEXT,
+      student_id TEXT,
+      kean_email TEXT,
+      membership_period TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
@@ -47,7 +53,7 @@ function migrateDatabase() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
-      role TEXT NOT NULL CHECK (role IN ('admin', 'member')),
+      role TEXT NOT NULL CHECK (role IN ('admin', 'member', 'president')),
       member_id INTEGER,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL
@@ -103,64 +109,199 @@ function migrateDatabase() {
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  const newColumns = [
+    { name: 'chinese_name', type: 'TEXT' },
+    { name: 'pinyin_name', type: 'TEXT' },
+    { name: 'gender', type: 'TEXT' },
+    { name: 'student_id', type: 'TEXT' },
+    { name: 'kean_email', type: 'TEXT' },
+    { name: 'membership_period', type: 'TEXT' },
+  ];
+
+  const existingColumns = database.prepare('PRAGMA table_info(members)').all().map((col) => col.name);
+  newColumns.forEach((col) => {
+    if (!existingColumns.includes(col.name)) {
+      database.exec(`ALTER TABLE members ADD COLUMN ${col.name} ${col.type}`);
+    }
+  });
+
+  const createSql = database.prepare(
+    "SELECT sql FROM sqlite_master WHERE type='table' AND name='users'"
+  ).get()?.sql || '';
+  if (createSql && !createSql.includes("'president'")) {
+    database.exec(`
+      CREATE TABLE IF NOT EXISTS users_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('admin', 'member', 'president')),
+        member_id INTEGER,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL
+      );
+      INSERT INTO users_new (id, username, password_hash, role, member_id, created_at)
+        SELECT id, username, password_hash, role, member_id, created_at FROM users;
+      DROP TABLE users;
+      ALTER TABLE users_new RENAME TO users;
+    `);
+  }
 }
 
-const demoMembers = [
+const orchestraMembers = [
   {
-    name: 'Lin Yue',
-    instrument: 'Erhu',
-    section: 'Strings',
-    role: 'Section Lead',
-    bio: 'Demo profile for layout testing. Lin Yue represents an expressive erhu player who supports lyrical melodies and ensemble balance.',
-    tags: ['Erhu', 'Strings', 'Solo Melody'],
-  },
-  {
-    name: 'Chen Anqi',
+    name: '郭承仪',
+    chinese_name: '郭承仪',
+    pinyin_name: 'guochengyi',
     instrument: 'Pipa',
     section: 'Plucked Strings',
-    role: 'Performer',
-    bio: 'Demo profile for showcasing pipa technique, rehearsal discipline, and collaborative stage presence.',
-    tags: ['Pipa', 'Plucked Strings', 'Stage'],
+    role: 'President',
+    bio: '郭承仪 (guochengyi), President of the Chinese Folk Orchestra. Leading the orchestra since 2022, dedicated to promoting traditional Chinese music and pipa performance.',
+    tags: ['President', '2022-present', 'Pipa'],
+    gender: 'female',
+    student_id: '1234682',
+    kean_email: 'guoch@kean.edu',
+    membership_period: '2022-present',
   },
   {
-    name: 'Wang Zihan',
+    name: '杨晨希',
+    chinese_name: '杨晨希',
+    pinyin_name: 'yangchenxi',
     instrument: 'Guzheng',
     section: 'Plucked Strings',
-    role: 'Performer',
-    bio: 'Demo profile for a guzheng performer with interest in traditional repertoire and modern arrangements.',
-    tags: ['Guzheng', 'Harmony', 'Traditional'],
+    role: 'Member',
+    bio: '杨晨希 (yangchenxi), member of the Chinese Folk Orchestra since 2024. Dedicated guzheng player participating in rehearsals and ensemble performances.',
+    tags: ['Member', '2024-present', 'Guzheng'],
+    gender: 'female',
+    student_id: '1306063',
+    kean_email: 'yanchenx@kean.edu',
+    membership_period: '2024-present',
   },
   {
-    name: 'Liu Siyu',
-    instrument: 'Dizi',
-    section: 'Winds',
-    role: 'Performer',
-    bio: 'Demo profile representing a bright dizi tone, festival repertoire, and chamber ensemble work.',
-    tags: ['Dizi', 'Winds', 'Festival'],
-  },
-  {
-    name: 'Zhao Ming',
-    instrument: 'Yangqin',
-    section: 'Dulcimer',
-    role: 'Accompanist',
-    bio: 'Demo profile for yangqin accompaniment, rhythmic clarity, and rehearsal coordination.',
-    tags: ['Yangqin', 'Accompaniment', 'Rhythm'],
-  },
-  {
-    name: 'Xu Ruo',
-    instrument: 'Zhongruan',
+    name: '蔡嘉文',
+    chinese_name: '蔡嘉文',
+    pinyin_name: 'caijiawen',
+    instrument: 'Pipa',
     section: 'Plucked Strings',
     role: 'Member',
-    bio: 'Demo profile showing the warm middle-register color of zhongruan inside the folk orchestra texture.',
-    tags: ['Zhongruan', 'Texture', 'Ensemble'],
+    bio: '蔡嘉文 (caijiawen), member of the Chinese Folk Orchestra since 2025. Specializes in pipa with dedication and musical passion.',
+    tags: ['Member', '2025-present', 'Pipa'],
+    gender: 'female',
+    student_id: '1366517',
+    kean_email: 'caijiaw@kean.edu',
+    membership_period: '2025-present',
   },
   {
-    name: 'Gao Wei',
-    instrument: 'Percussion',
-    section: 'Percussion',
+    name: '吴晗',
+    chinese_name: '吴晗',
+    pinyin_name: 'wuhan',
+    instrument: 'Pipa',
+    section: 'Plucked Strings',
     role: 'Member',
-    bio: 'Demo profile representing Chinese percussion, cue awareness, and performance energy.',
-    tags: ['Percussion', 'Rhythm', 'Concert'],
+    bio: '吴晗 (wuhan), member of the Chinese Folk Orchestra since 2025. Specializes in pipa performance.',
+    tags: ['Member', '2025-present', 'Pipa'],
+    gender: 'female',
+    student_id: '',
+    kean_email: 'wuh1@kean.edu',
+    membership_period: '2025-present',
+  },
+  {
+    name: '高美旺',
+    chinese_name: '高美旺',
+    pinyin_name: 'gaomeiwang',
+    instrument: 'Guzheng',
+    section: 'Plucked Strings',
+    role: 'Member',
+    bio: '高美旺 (gaomeiwang), member of the Chinese Folk Orchestra since 2025. Dedicated guzheng performer contributing to the plucked strings section.',
+    tags: ['Member', '2025-present', 'Guzheng'],
+    gender: 'female',
+    student_id: '1367146',
+    kean_email: 'gaomei@kean.edu',
+    membership_period: '2025-present',
+  },
+  {
+    name: '杨郑文',
+    chinese_name: '杨郑文',
+    pinyin_name: 'yangzhengwen',
+    instrument: 'Guzheng',
+    section: 'Plucked Strings',
+    role: 'Member',
+    bio: '杨郑文 (yangzhengwen), member of the Chinese Folk Orchestra since 2025. Guzheng performer contributing to traditional and modern repertoire.',
+    tags: ['Member', '2025-present', 'Guzheng'],
+    gender: 'female',
+    student_id: '1337370',
+    kean_email: 'yazhengw@kean.edu',
+    membership_period: '2025-present',
+  },
+  {
+    name: '朱宸妤',
+    chinese_name: '朱宸妤',
+    pinyin_name: 'zhuchenyu',
+    instrument: 'Erhu',
+    section: 'Strings',
+    role: 'Member',
+    bio: '朱宸妤 (zhuchenyu), member of the Chinese Folk Orchestra since 2023. Experienced performer contributing to the string section.',
+    tags: ['Member', '2023-present', 'Erhu'],
+    gender: 'female',
+    student_id: '1306018',
+    kean_email: 'zhucheny@kean.edu',
+    membership_period: '2023-present',
+  },
+  {
+    name: '朱芮萱',
+    chinese_name: '朱芮萱',
+    pinyin_name: 'zhuruixuan',
+    instrument: 'Dizi',
+    section: 'Winds',
+    role: 'Member',
+    bio: '朱芮萱 (zhuruixuan), member of the Chinese Folk Orchestra since 2025. Dizi player contributing bright melodies to the wind section.',
+    tags: ['Member', '2025-present', 'Dizi'],
+    gender: 'female',
+    student_id: '1367100',
+    kean_email: 'zhurui@kean.edu',
+    membership_period: '2025-present',
+  },
+  {
+    name: '罗韵清',
+    chinese_name: '罗韵清',
+    pinyin_name: 'luoyunqing',
+    instrument: 'Dizi',
+    section: 'Winds',
+    role: 'Member',
+    bio: '罗韵清 (luoyunqing), member of the Chinese Folk Orchestra since 2024. Dizi player bringing festival repertoire and bright tone to the wind section.',
+    tags: ['Member', '2024-present', 'Dizi'],
+    gender: 'female',
+    student_id: '1337358',
+    kean_email: 'luoyunq@kean.edu',
+    membership_period: '2024-present',
+  },
+  {
+    name: '王琪皓',
+    chinese_name: '王琪皓',
+    pinyin_name: 'wangqihao',
+    instrument: 'Erhu',
+    section: 'Strings',
+    role: 'Member',
+    bio: '王琪皓 (wangqihao), member of the Chinese Folk Orchestra since 2025. Erhu player contributing lyrical melodies to the string section.',
+    tags: ['Member', '2025-present', 'Erhu'],
+    gender: 'male',
+    student_id: '1367351',
+    kean_email: 'wanqihao@kean.edu',
+    membership_period: '2025-present',
+  },
+  {
+    name: '陈怡诺',
+    chinese_name: '陈怡诺',
+    pinyin_name: 'chenyinuo',
+    instrument: 'Guzheng',
+    section: 'Plucked Strings',
+    role: 'Member',
+    bio: '陈怡诺 (chenyinuo), member of the Chinese Folk Orchestra since 2024. Guzheng performer dedicated to traditional repertoire and modern arrangements.',
+    tags: ['Member', '2024-present', 'Guzheng'],
+    gender: 'female',
+    student_id: '1337928',
+    kean_email: 'chenyinu@kean.edu',
+    membership_period: '2024-present',
   },
 ];
 
@@ -274,9 +415,9 @@ function seedDatabase(options = {}) {
   if (memberCount === 0) {
     const insertMember = database.prepare(`
       INSERT INTO members
-        (name, instrument, section, role, bio, photo_url, video_url, tags, source_note, is_demo)
+        (name, instrument, section, role, bio, photo_url, video_url, tags, source_note, is_demo, chinese_name, pinyin_name, gender, student_id, kean_email, membership_period)
       VALUES
-        (@name, @instrument, @section, @role, @bio, @photo_url, @video_url, @tags, @source_note, @is_demo)
+        (@name, @instrument, @section, @role, @bio, @photo_url, @video_url, @tags, @source_note, @is_demo, @chinese_name, @pinyin_name, @gender, @student_id, @kean_email, @membership_period)
     `);
     const insertMany = database.transaction((members) => {
       members.forEach((member) => {
@@ -285,25 +426,47 @@ function seedDatabase(options = {}) {
           photo_url: '',
           video_url: '',
           tags: JSON.stringify(member.tags),
-          source_note: 'Demo placeholder data only, not actual orchestra members. Local generated profile for layout testing.',
-          is_demo: 1,
+          source_note: '',
+          is_demo: 0,
         });
       });
     });
-    insertMany(demoMembers);
+    insertMany(orchestraMembers);
   }
 
   const userCount = database.prepare('SELECT COUNT(*) AS count FROM users').get().count;
   if (userCount === 0) {
-    const firstMember = database.prepare('SELECT id FROM members ORDER BY id LIMIT 1').get();
     const adminHash = bcrypt.hashSync('admin123', 12);
-    const memberHash = bcrypt.hashSync('member123', 12);
+    const defaultHash = bcrypt.hashSync('orchestra123', 12);
     const insertUser = database.prepare(`
       INSERT INTO users (username, password_hash, role, member_id)
       VALUES (?, ?, ?, ?)
     `);
+
+    const allMembers = database.prepare('SELECT id, name, kean_email FROM members ORDER BY id').all();
+
+    const userMapping = {
+      '郭承仪': { username: 'guoch', role: 'president' },
+      '杨晨希': { username: 'yangchenx', role: 'member' },
+      '蔡嘉文': { username: 'caijiaw', role: 'member' },
+      '吴晗': { username: 'wuhan', role: 'member' },
+      '高美旺': { username: 'gaomei', role: 'member' },
+      '杨郑文': { username: 'yangzhengw', role: 'member' },
+      '朱宸妤': { username: 'zhucheny', role: 'member' },
+      '朱芮萱': { username: 'zhurui', role: 'member' },
+      '罗韵清': { username: 'luoyunq', role: 'member' },
+      '王琪皓': { username: 'wangqihao', role: 'member' },
+      '陈怡诺': { username: 'chenyinu', role: 'member' },
+    };
+
     insertUser.run('admin', adminHash, 'admin', null);
-    insertUser.run('member', memberHash, 'member', firstMember ? firstMember.id : null);
+
+    allMembers.forEach((member) => {
+      const mapping = userMapping[member.name];
+      if (mapping) {
+        insertUser.run(mapping.username, defaultHash, mapping.role, member.id);
+      }
+    });
   }
 
   const eventCount = database.prepare('SELECT COUNT(*) AS count FROM events').get().count;

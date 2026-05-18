@@ -61,13 +61,10 @@ export default function Members() {
       <SectionHeader
         title={pick('Member Showcase', '成员展示')}
         subtitle={pick(
-          'Demo placeholder profiles are used to test layout, search, filtering, and detail pages. These records are not actual orchestra members.',
-          '这里使用演示成员资料测试布局、搜索、筛选和详情页。这些记录不是实际乐团成员。',
+          'Browse profiles of our talented orchestra members. Click on any member card to view more details.',
+          '浏览我们才华横溢的乐团成员资料。点击任意成员卡片查看详细信息。',
         )}
       />
-      <Alert severity="warning" sx={{ mb: 3 }}>
-        {pick('Demo placeholder data only, not actual orchestra members.', '仅为演示占位数据，不代表实际乐团成员。')}
-      </Alert>
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
           <Box

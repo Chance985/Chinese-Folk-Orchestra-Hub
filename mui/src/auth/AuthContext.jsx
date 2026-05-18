@@ -50,6 +50,7 @@ export function AuthProvider({ children }) {
       user,
       loading,
       isAdmin: user?.role === 'admin',
+      isPresident: user?.role === 'president',
       isMember: user?.role === 'member',
       login,
       logout,

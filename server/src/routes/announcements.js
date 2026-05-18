@@ -6,7 +6,7 @@ const router = express.Router();
 const visibilityOptions = ['public', 'members', 'admin'];
 
 function allowedVisibility(req) {
-  if (req.user?.role === 'admin') return visibilityOptions;
+  if (req.user?.role === 'admin' || req.user?.role === 'president') return visibilityOptions;
   if (req.user?.role === 'member') return ['public', 'members'];
   return ['public'];
 }
@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
   return res.json({ items: rows, itemCount: rows.length });
 });
 
-router.post('/', requireAuth, requireRole('admin'), (req, res) => {
+router.post('/', requireAuth, requireRole('admin', 'president'), (req, res) => {
   const error = validateAnnouncement(req.body || {});
   if (error) return res.status(400).json({ message: error });
   const payload = {
@@ -45,7 +45,7 @@ router.post('/', requireAuth, requireRole('admin'), (req, res) => {
   return res.status(201).json({ item: announcement });
 });
 
-router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
+router.put('/:id', requireAuth, requireRole('admin', 'president'), (req, res) => {
   const error = validateAnnouncement(req.body || {});
   if (error) return res.status(400).json({ message: error });
   const payload = {
@@ -67,7 +67,7 @@ router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
   return res.json({ item: announcement });
 });
 
-router.delete('/:id', requireAuth, requireRole('admin'), (req, res) => {
+router.delete('/:id', requireAuth, requireRole('admin', 'president'), (req, res) => {
   const result = getDb().prepare('DELETE FROM announcements WHERE id = ?').run(req.params.id);
   if (!result.changes) return res.status(404).json({ message: 'Announcement not found.' });
   return res.json({ message: 'Announcement deleted.' });

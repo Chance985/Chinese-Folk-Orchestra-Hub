@@ -124,11 +124,17 @@ router.post('/', requireAuth, requireRole('admin'), (req, res) => {
     tags: JSON.stringify(parseTags(req.body.tags)),
     source_note: String(req.body.source_note || 'Created by admin in local system.').trim(),
     is_demo: req.body.is_demo ? 1 : 0,
+    chinese_name: String(req.body.chinese_name || '').trim(),
+    pinyin_name: String(req.body.pinyin_name || '').trim(),
+    gender: String(req.body.gender || '').trim(),
+    student_id: String(req.body.student_id || '').trim(),
+    kean_email: String(req.body.kean_email || '').trim(),
+    membership_period: String(req.body.membership_period || '').trim(),
   };
 
   const result = getDb().prepare(`
-    INSERT INTO members (name, instrument, section, role, bio, photo_url, video_url, tags, source_note, is_demo)
-    VALUES (@name, @instrument, @section, @role, @bio, @photo_url, @video_url, @tags, @source_note, @is_demo)
+    INSERT INTO members (name, instrument, section, role, bio, photo_url, video_url, tags, source_note, is_demo, chinese_name, pinyin_name, gender, student_id, kean_email, membership_period)
+    VALUES (@name, @instrument, @section, @role, @bio, @photo_url, @video_url, @tags, @source_note, @is_demo, @chinese_name, @pinyin_name, @gender, @student_id, @kean_email, @membership_period)
   `).run(payload);
 
   const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(result.lastInsertRowid);
@@ -154,6 +160,12 @@ router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
     tags: JSON.stringify(parseTags(merged.tags)),
     source_note: String(merged.source_note || '').trim(),
     is_demo: merged.is_demo ? 1 : 0,
+    chinese_name: String(merged.chinese_name || '').trim(),
+    pinyin_name: String(merged.pinyin_name || '').trim(),
+    gender: String(merged.gender || '').trim(),
+    student_id: String(merged.student_id || '').trim(),
+    kean_email: String(merged.kean_email || '').trim(),
+    membership_period: String(merged.membership_period || '').trim(),
   };
 
   getDb().prepare(`
@@ -168,6 +180,12 @@ router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
         tags = @tags,
         source_note = @source_note,
         is_demo = @is_demo,
+        chinese_name = @chinese_name,
+        pinyin_name = @pinyin_name,
+        gender = @gender,
+        student_id = @student_id,
+        kean_email = @kean_email,
+        membership_period = @membership_period,
         updated_at = CURRENT_TIMESTAMP
     WHERE id = @id
   `).run(payload);
@@ -180,6 +198,31 @@ router.delete('/:id', requireAuth, requireRole('admin'), (req, res) => {
   const result = getDb().prepare('DELETE FROM members WHERE id = ?').run(req.params.id);
   if (!result.changes) return res.status(404).json({ message: 'Member not found.' });
   return res.json({ message: 'Member deleted.' });
+});
+
+router.get('/export/csv', requireAuth, requireRole('admin', 'president'), (req, res) => {
+  const rows = getDb().prepare('SELECT * FROM members ORDER BY section, instrument, name').all();
+  const headers = ['ID', 'Name', 'Chinese Name', 'Pinyin', 'Instrument', 'Section', 'Role', 'Gender', 'Student ID', 'Kean Email', 'Membership Period', 'Bio'];
+  const csvRows = [headers.join(',')];
+  rows.forEach((row) => {
+    csvRows.push([
+      row.id,
+      `"${(row.name || '').replace(/"/g, '""')}"`,
+      `"${(row.chinese_name || '').replace(/"/g, '""')}"`,
+      `"${(row.pinyin_name || '').replace(/"/g, '""')}"`,
+      `"${(row.instrument || '').replace(/"/g, '""')}"`,
+      `"${(row.section || '').replace(/"/g, '""')}"`,
+      `"${(row.role || '').replace(/"/g, '""')}"`,
+      row.gender || '',
+      row.student_id || '',
+      row.kean_email || '',
+      row.membership_period || '',
+      `"${(row.bio || '').replace(/"/g, '""')}"`,
+    ].join(','));
+  });
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=members.csv');
+  return res.send('\uFEFF' + csvRows.join('\n'));
 });
 
 module.exports = router;

@@ -36,7 +36,7 @@ const emptyAnnouncement = {
 };
 
 export default function DashboardAnnouncements() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isPresident } = useAuth();
   const { language, pick } = useLanguage();
   const gridLocaleText = language === 'zh' ? zhCN.components.MuiDataGrid.defaultProps.localeText : undefined;
   const [rows, setRows] = useState([]);
@@ -135,7 +135,7 @@ export default function DashboardAnnouncements() {
     [pick],
   );
 
-  if (!isAdmin) {
+  if (!isAdmin && !isPresident) {
     return (
       <Stack spacing={2.5}>
         <Box>

@@ -16,7 +16,8 @@ function validateEvent(body) {
 }
 
 function allowedVisibility(req) {
-  if (req.user?.role === 'admin' || req.user?.role === 'member') return visibilityOptions;
+  if (req.user?.role === 'admin' || req.user?.role === 'president') return visibilityOptions;
+  if (req.user?.role === 'member') return visibilityOptions;
   return ['public'];
 }
 
@@ -29,7 +30,7 @@ router.get('/', (req, res) => {
   return res.json({ items: rows, itemCount: rows.length });
 });
 
-router.post('/', requireAuth, requireRole('admin'), (req, res) => {
+router.post('/', requireAuth, requireRole('admin', 'president'), (req, res) => {
   const error = validateEvent(req.body || {});
   if (error) return res.status(400).json({ message: error });
   const payload = {
@@ -48,7 +49,7 @@ router.post('/', requireAuth, requireRole('admin'), (req, res) => {
   return res.status(201).json({ item: event });
 });
 
-router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
+router.put('/:id', requireAuth, requireRole('admin', 'president'), (req, res) => {
   const error = validateEvent(req.body || {});
   if (error) return res.status(400).json({ message: error });
   const payload = {
@@ -76,7 +77,7 @@ router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
   return res.json({ item: event });
 });
 
-router.delete('/:id', requireAuth, requireRole('admin'), (req, res) => {
+router.delete('/:id', requireAuth, requireRole('admin', 'president'), (req, res) => {
   const result = getDb().prepare('DELETE FROM events WHERE id = ?').run(req.params.id);
   if (!result.changes) return res.status(404).json({ message: 'Event not found.' });
   return res.json({ message: 'Event deleted.' });

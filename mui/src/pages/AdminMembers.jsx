@@ -20,11 +20,15 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import DemoAvatar from '../components/DemoAvatar.jsx';
 import { apiRequest } from '../api/client.js';
 import { useLanguage } from '../i18n/LanguageContext.jsx';
+import { useAuth } from '../auth/AuthContext.jsx';
 import { joinTags } from '../utils/format.js';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 const emptyMember = {
   name: '',
@@ -37,6 +41,12 @@ const emptyMember = {
   tags: '',
   source_note: 'Created by admin in local system.',
   is_demo: false,
+  chinese_name: '',
+  pinyin_name: '',
+  gender: '',
+  student_id: '',
+  kean_email: '',
+  membership_period: '',
 };
 
 const fieldLabels = {
@@ -44,10 +54,17 @@ const fieldLabels = {
   instrument: ['Instrument', '乐器'],
   section: ['Section', '声部'],
   role: ['Role', '角色'],
+  chinese_name: ['Chinese Name', '中文名'],
+  pinyin_name: ['Pinyin Name', '拼音'],
+  gender: ['Gender', '性别'],
+  student_id: ['Student ID', '学号'],
+  kean_email: ['Kean Email', 'Kean邮箱'],
+  membership_period: ['Membership Period', '入团时间'],
 };
 
 export default function AdminMembers() {
   const { language, pick } = useLanguage();
+  const { isAdmin, isPresident } = useAuth();
   const gridLocaleText = language === 'zh' ? zhCN.components.MuiDataGrid.defaultProps.localeText : undefined;
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,6 +129,22 @@ export default function AdminMembers() {
     await load();
   }
 
+  async function exportMembersCSV() {
+    const token = localStorage.getItem('cfoh_token');
+    const res = await fetch(`${API_URL}/members/export/csv`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'members.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -153,23 +186,26 @@ export default function AdminMembers() {
         type: 'actions',
         headerName: pick('Actions', '操作'),
         width: 120,
-        getActions: ({ row }) => [
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditRoundedIcon />}
-            label={pick('Edit', '编辑')}
-            onClick={() => openEdit(row)}
-          />,
-          <GridActionsCellItem
-            key="delete"
-            icon={<DeleteRoundedIcon />}
-            label={pick('Delete', '删除')}
-            onClick={() => setDeleteTarget(row)}
-          />,
-        ],
+        getActions: ({ row }) =>
+          isAdmin
+            ? [
+              <GridActionsCellItem
+                key="edit"
+                icon={<EditRoundedIcon />}
+                label={pick('Edit', '编辑')}
+                onClick={() => openEdit(row)}
+              />,
+              <GridActionsCellItem
+                key="delete"
+                icon={<DeleteRoundedIcon />}
+                label={pick('Delete', '删除')}
+                onClick={() => setDeleteTarget(row)}
+              />,
+            ]
+            : [],
       },
     ],
-    [pick],
+    [pick, isAdmin],
   );
 
   return (
@@ -184,14 +220,21 @@ export default function AdminMembers() {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
+          <Tooltip title={pick('Export CSV', '导出CSV')}>
+            <IconButton onClick={exportMembersCSV} aria-label={pick('Export CSV', '导出CSV')}>
+              <FileDownloadRoundedIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip title={pick('Refresh members', '刷新成员')}>
             <IconButton onClick={load} aria-label={pick('Refresh members', '刷新成员')}>
               <RefreshRoundedIcon />
             </IconButton>
           </Tooltip>
-          <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreate}>
-            {pick('New member', '新建成员')}
-          </Button>
+          {isAdmin && (
+            <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={openCreate}>
+              {pick('New member', '新建成员')}
+            </Button>
+          )}
         </Stack>
       </Stack>
       {error && <Alert severity="error">{error}</Alert>}
@@ -226,6 +269,14 @@ export default function AdminMembers() {
                 value={form[field] || ''}
                 onChange={(event) => setForm((current) => ({ ...current, [field]: event.target.value }))}
                 required
+              />
+            ))}
+            {['chinese_name', 'pinyin_name', 'gender', 'student_id', 'kean_email', 'membership_period'].map((field) => (
+              <TextField
+                key={field}
+                label={pick(...fieldLabels[field])}
+                value={form[field] || ''}
+                onChange={(event) => setForm((current) => ({ ...current, [field]: event.target.value }))}
               />
             ))}
             <TextField

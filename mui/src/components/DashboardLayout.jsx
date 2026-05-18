@@ -37,6 +37,7 @@ const adminItems = [
   { key: 'announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
   { key: 'events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
   { key: 'resources', path: '/dashboard/resources', icon: <SourceRoundedIcon /> },
+  { key: 'users', path: '/dashboard/users', icon: <AccountCircleRoundedIcon /> },
 ];
 
 const memberItems = [
@@ -44,6 +45,14 @@ const memberItems = [
   { key: 'profile', path: '/dashboard/profile', icon: <AccountCircleRoundedIcon /> },
   { key: 'announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
   { key: 'events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
+];
+
+const presidentItems = [
+  { key: 'dashboard', path: '/dashboard', icon: <DashboardRoundedIcon /> },
+  { key: 'members', path: '/dashboard/members', icon: <GroupRoundedIcon /> },
+  { key: 'announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
+  { key: 'events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
+  { key: 'profile', path: '/dashboard/profile', icon: <AccountCircleRoundedIcon /> },
 ];
 
 const labels = {
@@ -59,7 +68,8 @@ const labels = {
     mobileTitle: 'Orchestra Hub',
     openNavigation: 'Open dashboard navigation',
     logout: 'Log out',
-    roles: { admin: 'admin', member: 'member' },
+    users: 'Users',
+    roles: { admin: 'admin', member: 'member', president: 'president' },
   },
   zh: {
     dashboard: '控制台',
@@ -73,15 +83,16 @@ const labels = {
     mobileTitle: '民乐团枢纽',
     openNavigation: '打开控制台导航',
     logout: '退出登录',
-    roles: { admin: '管理员', member: '成员' },
+    users: '用户',
+    roles: { admin: '管理员', member: '成员', president: '队长' },
   },
 };
 
 function SidebarContent({ onNavigate }) {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, isPresident } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
-  const items = isAdmin ? adminItems : memberItems;
+  const items = isAdmin ? adminItems : isPresident ? presidentItems : memberItems;
   const t = labels[language];
 
   return (
