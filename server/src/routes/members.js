@@ -1,6 +1,7 @@
 const express = require('express');
 const { getDb } = require('../db');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const { decryptId, encryptId } = require('../utils/urlCrypto');
 
 const router = express.Router();
 
@@ -18,13 +19,20 @@ function parseTags(value) {
   return [];
 }
 
-function mapMember(row) {
+function canSeeInternalIds(user) {
+  return ['admin', 'president'].includes(user?.role);
+}
+
+function mapMember(row, options = {}) {
   if (!row) return null;
-  return {
+  const member = {
     ...row,
+    public_id: encryptId(row.id),
     tags: parseTags(row.tags),
     is_demo: Boolean(row.is_demo),
   };
+  if (!options.includeInternalId) delete member.id;
+  return member;
 }
 
 function validateMember(body) {
@@ -59,30 +67,59 @@ router.get('/', (req, res) => {
     .prepare(`SELECT * FROM members ${where} ORDER BY section, instrument, name`)
     .all(params);
   return res.json({
-    items: rows.map(mapMember),
+    items: rows.map((row) => mapMember(row, { includeInternalId: canSeeInternalIds(req.user) })),
     itemCount: rows.length,
   });
 });
 
+router.get('/export/csv', requireAuth, requireRole('admin', 'president'), (req, res) => {
+  const rows = getDb().prepare('SELECT * FROM members ORDER BY section, instrument, name').all();
+  const headers = ['ID', 'Name', 'Chinese Name', 'Pinyin', 'Instrument', 'Section', 'Role', 'Gender', 'Student ID', 'Kean Email', 'Membership Period', 'Bio'];
+  const csvRows = [headers.join(',')];
+  rows.forEach((row) => {
+    csvRows.push([
+      row.id,
+      `"${(row.name || '').replace(/"/g, '""')}"`,
+      `"${(row.chinese_name || '').replace(/"/g, '""')}"`,
+      `"${(row.pinyin_name || '').replace(/"/g, '""')}"`,
+      `"${(row.instrument || '').replace(/"/g, '""')}"`,
+      `"${(row.section || '').replace(/"/g, '""')}"`,
+      `"${(row.role || '').replace(/"/g, '""')}"`,
+      row.gender || '',
+      row.student_id || '',
+      row.kean_email || '',
+      row.membership_period || '',
+      `"${(row.bio || '').replace(/"/g, '""')}"`,
+    ].join(','));
+  });
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=members.csv');
+  return res.send('\uFEFF' + csvRows.join('\n'));
+});
+
 router.get('/:id', (req, res) => {
-  const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(req.params.id);
+  const memberId = decryptId(req.params.id);
+  if (!memberId) return res.status(404).json({ message: 'Member not found.' });
+  const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(memberId);
   if (!member) return res.status(404).json({ message: 'Member not found.' });
-  return res.json({ item: mapMember(member) });
+  return res.json({ item: mapMember(member, { includeInternalId: canSeeInternalIds(req.user) }) });
 });
 
 router.put('/:id/profile', requireAuth, (req, res) => {
-  const existing = getDb().prepare('SELECT * FROM members WHERE id = ?').get(req.params.id);
+  const memberId = decryptId(req.params.id);
+  if (!memberId) return res.status(404).json({ message: 'Member not found.' });
+  const existing = getDb().prepare('SELECT * FROM members WHERE id = ?').get(memberId);
   if (!existing) return res.status(404).json({ message: 'Member not found.' });
 
   const isOwnProfile =
-    req.user.role === 'member' && Number(req.user.member_id) === Number(req.params.id);
+    req.user.role === 'member' && Number(req.user.member_id) === Number(memberId);
   if (req.user.role !== 'admin' && !isOwnProfile) {
     return res.status(403).json({ message: 'You can only edit your linked member profile.' });
   }
 
   const hasField = (field) => Object.prototype.hasOwnProperty.call(req.body || {}, field);
   const payload = {
-    id: req.params.id,
+    id: memberId,
     bio: hasField('bio') ? String(req.body.bio || '').trim() : existing.bio,
     photo_url: hasField('photo_url')
       ? String(req.body.photo_url || '').trim()
@@ -105,8 +142,8 @@ router.put('/:id/profile', requireAuth, (req, res) => {
     WHERE id = @id
   `).run(payload);
 
-  const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(req.params.id);
-  return res.json({ item: mapMember(member) });
+  const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(memberId);
+  return res.json({ item: mapMember(member, { includeInternalId: canSeeInternalIds(req.user) }) });
 });
 
 router.post('/', requireAuth, requireRole('admin'), (req, res) => {
@@ -138,18 +175,20 @@ router.post('/', requireAuth, requireRole('admin'), (req, res) => {
   `).run(payload);
 
   const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(result.lastInsertRowid);
-  return res.status(201).json({ item: mapMember(member) });
+  return res.status(201).json({ item: mapMember(member, { includeInternalId: true }) });
 });
 
 router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
-  const existing = getDb().prepare('SELECT * FROM members WHERE id = ?').get(req.params.id);
+  const memberId = decryptId(req.params.id);
+  if (!memberId) return res.status(404).json({ message: 'Member not found.' });
+  const existing = getDb().prepare('SELECT * FROM members WHERE id = ?').get(memberId);
   if (!existing) return res.status(404).json({ message: 'Member not found.' });
   const merged = { ...existing, ...(req.body || {}) };
   const error = validateMember(merged);
   if (error) return res.status(400).json({ message: error });
 
   const payload = {
-    id: req.params.id,
+    id: memberId,
     name: String(merged.name).trim(),
     instrument: String(merged.instrument).trim(),
     section: String(merged.section).trim(),
@@ -190,39 +229,16 @@ router.put('/:id', requireAuth, requireRole('admin'), (req, res) => {
     WHERE id = @id
   `).run(payload);
 
-  const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(req.params.id);
-  return res.json({ item: mapMember(member) });
+  const member = getDb().prepare('SELECT * FROM members WHERE id = ?').get(memberId);
+  return res.json({ item: mapMember(member, { includeInternalId: true }) });
 });
 
 router.delete('/:id', requireAuth, requireRole('admin'), (req, res) => {
-  const result = getDb().prepare('DELETE FROM members WHERE id = ?').run(req.params.id);
+  const memberId = decryptId(req.params.id);
+  if (!memberId) return res.status(404).json({ message: 'Member not found.' });
+  const result = getDb().prepare('DELETE FROM members WHERE id = ?').run(memberId);
   if (!result.changes) return res.status(404).json({ message: 'Member not found.' });
   return res.json({ message: 'Member deleted.' });
-});
-
-router.get('/export/csv', requireAuth, requireRole('admin', 'president'), (req, res) => {
-  const rows = getDb().prepare('SELECT * FROM members ORDER BY section, instrument, name').all();
-  const headers = ['ID', 'Name', 'Chinese Name', 'Pinyin', 'Instrument', 'Section', 'Role', 'Gender', 'Student ID', 'Kean Email', 'Membership Period', 'Bio'];
-  const csvRows = [headers.join(',')];
-  rows.forEach((row) => {
-    csvRows.push([
-      row.id,
-      `"${(row.name || '').replace(/"/g, '""')}"`,
-      `"${(row.chinese_name || '').replace(/"/g, '""')}"`,
-      `"${(row.pinyin_name || '').replace(/"/g, '""')}"`,
-      `"${(row.instrument || '').replace(/"/g, '""')}"`,
-      `"${(row.section || '').replace(/"/g, '""')}"`,
-      `"${(row.role || '').replace(/"/g, '""')}"`,
-      row.gender || '',
-      row.student_id || '',
-      row.kean_email || '',
-      row.membership_period || '',
-      `"${(row.bio || '').replace(/"/g, '""')}"`,
-    ].join(','));
-  });
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-  res.setHeader('Content-Disposition', 'attachment; filename=members.csv');
-  return res.send('\uFEFF' + csvRows.join('\n'));
 });
 
 module.exports = router;

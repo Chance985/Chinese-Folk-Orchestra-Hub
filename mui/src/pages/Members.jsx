@@ -123,7 +123,7 @@ export default function Members() {
         >
           {filtered.map((member, index) => (
             <Card
-              key={member.id}
+              key={member.public_id || member.id}
               sx={{
                 animation: `cfFadeUp 520ms cubic-bezier(0.16, 1, 0.3, 1) ${index * 55}ms both`,
                 transition:
@@ -156,7 +156,7 @@ export default function Members() {
                     <Chip key={tag} size="small" label={tag} variant="outlined" />
                   ))}
                 </Stack>
-                <Button component={RouterLink} to={`/members/${member.id}`} variant="outlined" sx={{ mt: 2 }}>
+                <Button component={RouterLink} to={`/members/${member.public_id || member.id}`} variant="outlined" sx={{ mt: 2 }}>
                   {pick('View profile', '查看资料')}
                 </Button>
               </CardContent>
