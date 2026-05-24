@@ -7,3 +7,4 @@ coverage/
 Thumbs.db
 server/data/*.sqlite
 server/data/*.sqlite-journal
+server/production.env
