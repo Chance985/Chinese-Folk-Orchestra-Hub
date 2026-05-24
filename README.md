@@ -34,62 +34,40 @@ erDiagram
         INTEGER id PK
         TEXT name
         TEXT chinese_name
-        TEXT pinyin_name
         TEXT instrument
         TEXT section
         TEXT role
         TEXT bio
-        TEXT photo_url
-        TEXT video_url
-        TEXT tags
-        TEXT gender
-        TEXT student_id
         TEXT kean_email
-        TEXT membership_period
     }
-    
     users {
         INTEGER id PK
         TEXT username
-        TEXT password_hash
         TEXT role
         INTEGER member_id FK
     }
-    
     applications {
         INTEGER id PK
         TEXT full_name
-        TEXT student_id
         TEXT email
-        TEXT phone
         TEXT status
     }
-    
     announcements {
         INTEGER id PK
         TEXT title
         TEXT content
-        TEXT visible_to
     }
-    
     events {
         INTEGER id PK
         TEXT title
-        TEXT type
         TEXT event_date
-        TEXT location
-        TEXT visibility
     }
-    
     resources {
         INTEGER id PK
         TEXT resource_type
-        TEXT website_source
-        TEXT what_was_used
-        TEXT how_modified
     }
-    
     users ||--o| members : "member_id"
+```
 
 ## Folder Structure
 
