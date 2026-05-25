@@ -13,7 +13,6 @@ const AdminUsers = lazy(() => import('./pages/AdminUsers.jsx'));
 const DashboardAnnouncements = lazy(() => import('./pages/DashboardAnnouncements.jsx'));
 const DashboardEvents = lazy(() => import('./pages/DashboardEvents.jsx'));
 const DashboardHome = lazy(() => import('./pages/DashboardHome.jsx'));
-const DashboardResources = lazy(() => import('./pages/DashboardResources.jsx'));
 const Events = lazy(() => import('./pages/Events.jsx'));
 const Home = lazy(() => import('./pages/Home.jsx'));
 const Join = lazy(() => import('./pages/Join.jsx'));
@@ -22,7 +21,6 @@ const MemberDetail = lazy(() => import('./pages/MemberDetail.jsx'));
 const MemberProfile = lazy(() => import('./pages/MemberProfile.jsx'));
 const Members = lazy(() => import('./pages/Members.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
-const Resources = lazy(() => import('./pages/Resources.jsx'));
 
 function PageLoader() {
   return (
@@ -52,7 +50,6 @@ export default function App() {
           <Route path="members/:id" element={<MemberDetail />} />
           <Route path="events" element={<Events />} />
           <Route path="join" element={<Join />} />
-          <Route path="resources" element={<Resources />} />
           <Route path="login" element={<Login />} />
         </Route>
 
@@ -84,14 +81,6 @@ export default function App() {
           <Route path="announcements" element={<DashboardAnnouncements />} />
           <Route path="events" element={<DashboardEvents />} />
           <Route path="profile" element={<MemberProfile />} />
-          <Route
-            path="resources"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <DashboardResources />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="users"
             element={

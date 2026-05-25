@@ -23,7 +23,6 @@ import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import PublicRoundedIcon from '@mui/icons-material/PublicRounded';
-import SourceRoundedIcon from '@mui/icons-material/SourceRounded';
 import BrandMark from './BrandMark.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { useLanguage } from '../i18n/LanguageContext.jsx';
@@ -36,7 +35,6 @@ const adminItems = [
   { key: 'applications', path: '/dashboard/applications', icon: <AssignmentRoundedIcon /> },
   { key: 'announcements', path: '/dashboard/announcements', icon: <CampaignRoundedIcon /> },
   { key: 'events', path: '/dashboard/events', icon: <EventRoundedIcon /> },
-  { key: 'resources', path: '/dashboard/resources', icon: <SourceRoundedIcon /> },
   { key: 'users', path: '/dashboard/users', icon: <AccountCircleRoundedIcon /> },
 ];
 
@@ -62,7 +60,6 @@ const labels = {
     applications: 'Applications',
     announcements: 'Announcements',
     events: 'Events',
-    resources: 'Resources',
     profile: 'My Profile',
     publicSite: 'Public site',
     mobileTitle: 'Orchestra Hub',
@@ -77,7 +74,6 @@ const labels = {
     applications: '申请',
     announcements: '公告',
     events: '活动',
-    resources: '资源',
     profile: '我的资料',
     publicSite: '公开网站',
     mobileTitle: '民乐团枢纽',

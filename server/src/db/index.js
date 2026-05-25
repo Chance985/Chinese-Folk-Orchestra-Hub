@@ -100,14 +100,6 @@ function migrateDatabase() {
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
-    CREATE TABLE IF NOT EXISTS resources (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      resource_type TEXT NOT NULL,
-      website_source TEXT NOT NULL,
-      what_was_used TEXT NOT NULL,
-      how_modified TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
   `);
 
   const newColumns = [
@@ -368,33 +360,6 @@ const demoApplications = [
   },
 ];
 
-const resources = [
-  {
-    resource_type: 'AI coding assistant',
-    website_source: 'Codex Desktop',
-    what_was_used: 'Planning, coding assistance, testing workflow support, and documentation drafting.',
-    how_modified: 'All generated code was adapted into a local full-stack project and tested manually.',
-  },
-  {
-    resource_type: 'Frontend template',
-    website_source: 'Local Material UI templates in D:\\cps3500project\\mui',
-    what_was_used: 'Shared theme pattern, marketing app bar structure, dashboard shell, CRUD table style, sign-in card style.',
-    how_modified: 'Converted into an orchestra-specific React app with public pages and role-based dashboards.',
-  },
-  {
-    resource_type: 'UI framework',
-    website_source: 'MUI / Material UI',
-    what_was_used: 'React components, icons, forms, cards, tables, dialogs, navigation, theme provider.',
-    how_modified: 'Customized with a deep red, gold, cream, and ink visual system.',
-  },
-  {
-    resource_type: 'Demo data and images',
-    website_source: 'Local generated placeholder data and AI-generated hero image',
-    what_was_used: 'Demo member profiles, generated stage hero image, and local avatar-style fallbacks.',
-    how_modified: 'Marked clearly as demo placeholder data only, not actual orchestra members.',
-  },
-];
-
 function seedDatabase(options = {}) {
   migrateDatabase();
   const database = getDb();
@@ -404,10 +369,9 @@ function seedDatabase(options = {}) {
       DELETE FROM applications;
       DELETE FROM announcements;
       DELETE FROM events;
-      DELETE FROM resources;
       DELETE FROM users;
       DELETE FROM members;
-      DELETE FROM sqlite_sequence WHERE name IN ('applications','announcements','events','resources','users','members');
+      DELETE FROM sqlite_sequence WHERE name IN ('applications','announcements','events','users','members');
     `);
   }
 
@@ -496,15 +460,6 @@ function seedDatabase(options = {}) {
         (@full_name, @student_id, @email, @phone, @instrument_interest, @experience, @introduction, @portfolio_url, @available_time, @message, @status)
     `);
     demoApplications.forEach((application) => insertApplication.run(application));
-  }
-
-  const resourceCount = database.prepare('SELECT COUNT(*) AS count FROM resources').get().count;
-  if (resourceCount === 0) {
-    const insertResource = database.prepare(`
-      INSERT INTO resources (resource_type, website_source, what_was_used, how_modified)
-      VALUES (@resource_type, @website_source, @what_was_used, @how_modified)
-    `);
-    resources.forEach((resource) => insertResource.run(resource));
   }
 }
 

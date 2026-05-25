@@ -33,11 +33,11 @@ const copy = {
     operations: [
       ['Public site', 'Home, about, members, events, join form'],
       ['Member space', 'Announcements, event visibility, linked profile view'],
-      ['Admin review', 'Applications, members, events, resources, announcements'],
+      ['Admin review', 'Applications, members, events, and announcements'],
     ],
     workflowTitle: 'Built around rehearsal work',
     workflowText:
-      'The visible pages stay simple, while the dashboard handles the recurring tasks: auditions, announcements, events, member edits, and resource records.',
+      'The visible pages stay simple, while the dashboard handles the recurring tasks: auditions, announcements, events, and member edits.',
     workflows: [
       {
         title: 'Member Showcase',
@@ -82,10 +82,10 @@ const copy = {
     operations: [
       ['公开网站', '首页、关于、成员展示、活动列表、加入申请'],
       ['成员空间', '公告、成员可见活动、关联个人资料'],
-      ['管理员审核', '报名申请、成员、活动、资源和公告管理'],
+      ['管理员审核', '报名申请、成员、活动和公告管理'],
     ],
     workflowTitle: '围绕排练与招新流程设计',
-    workflowText: '公开页面保持清晰克制，后台负责反复出现的工作：招新、公告、活动、成员编辑和资源记录。',
+    workflowText: '公开页面保持清晰克制，后台负责反复出现的工作：招新、公告、活动和成员编辑。',
     workflows: [
       {
         title: '成员展示',

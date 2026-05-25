@@ -11,7 +11,6 @@ const memberRoutes = require('./routes/members');
 const applicationRoutes = require('./routes/applications');
 const announcementRoutes = require('./routes/announcements');
 const eventRoutes = require('./routes/events');
-const resourceRoutes = require('./routes/resources');
 const dashboardRoutes = require('./routes/dashboard');
 
 seedDatabase();
@@ -42,7 +41,6 @@ app.use('/api/members', memberRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/events', eventRoutes);
-app.use('/api/resources', resourceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // ── Error handlers ────────────────────────────────────────────────────────────

@@ -22,9 +22,8 @@ Chinese Folk Orchestra Hub is a full-stack dynamic web programming final project
 - Public and member-visible event listing
 - JWT login for admin/member users
 - Admin dashboard overview cards
-- Admin CRUD management for members, applications, announcements, events, and resource declarations
+- Admin CRUD management for members, applications, announcements, and events
 - Member dashboard with announcements, events, linked profile view, and limited profile editing
-- External resources page for academic integrity and demo data disclosure
 
 ## Database Schema (ER Diagram)
 
@@ -61,10 +60,6 @@ erDiagram
         INTEGER id PK
         TEXT title
         TEXT event_date
-    }
-    resources {
-        INTEGER id PK
-        TEXT resource_type
     }
     users ||--o| members : "member_id"
 ```
@@ -215,11 +210,6 @@ Events:
 - `PUT /api/events/:id` admin only
 - `DELETE /api/events/:id` admin only
 
-Resources:
-
-- `GET /api/resources`
-- `POST /api/resources` admin only
-
 ## Demo Placeholder Data
 
 Real orchestra member information is not available. The seeded member profiles are local demo placeholders only and are clearly marked in the UI as:
@@ -232,7 +222,7 @@ The project does not claim that any public celebrity or real performer belongs t
 
 The seed also includes one sample join application so the admin dashboard has a pending application immediately after setup.
 
-## AI, Template, and External Resource Notes
+## AI and Template Notes
 
 - AI coding assistant: Codex Desktop
 - Frontend template: local Material UI templates from `D:\cps3500project\mui`

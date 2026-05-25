@@ -23,7 +23,6 @@ const navItems = [
   { key: 'members', path: '/members' },
   { key: 'events', path: '/events' },
   { key: 'join', path: '/join' },
-  { key: 'resources', path: '/resources' },
 ];
 
 const navLabels = {
@@ -33,7 +32,6 @@ const navLabels = {
     members: 'Members',
     events: 'Events',
     join: 'Join Us',
-    resources: 'Resources',
     dashboard: 'Dashboard',
     login: 'Login',
     apply: 'Apply',
@@ -47,7 +45,6 @@ const navLabels = {
     members: '成员',
     events: '活动',
     join: '加入我们',
-    resources: '资源',
     dashboard: '控制台',
     login: '登录',
     apply: '申请',
